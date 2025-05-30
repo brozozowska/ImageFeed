@@ -7,11 +7,13 @@
 
 import UIKit
 
-class SingleImageViewController: UIViewController {
+final class SingleImageViewController: UIViewController {
     
+    // MARK: - IBOutlets
     @IBOutlet private var imageView: UIImageView!
     @IBOutlet private var scrollView: UIScrollView!
     
+    // MARK: - Public Properties
     var image: UIImage? {
         didSet {
             guard isViewLoaded, let image else { return }
@@ -21,6 +23,7 @@ class SingleImageViewController: UIViewController {
         }
     }
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         scrollView.minimumZoomScale = 0.1
@@ -33,6 +36,7 @@ class SingleImageViewController: UIViewController {
         rescaleAndCenterImageInScrollView(image: image)
     }
     
+    // MARK: - IBActions
     @IBAction private func didTapBackButton() {
         dismiss(animated: true, completion: nil)
     }
@@ -46,7 +50,7 @@ class SingleImageViewController: UIViewController {
         present(share, animated: true, completion: nil)
     }
     
-    
+    // MARK: - Private Methods
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
@@ -82,6 +86,7 @@ class SingleImageViewController: UIViewController {
     }
 }
 
+// MARK: - UIScrollViewDelegate
 extension SingleImageViewController: UIScrollViewDelegate {
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
         return imageView

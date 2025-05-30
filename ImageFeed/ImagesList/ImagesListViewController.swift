@@ -9,8 +9,10 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
+    // MARK: - IBOutlets
     @IBOutlet private var tableView: UITableView!
     
+    // MARK: - Private Properties
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
     private let photosName: [String] = Array(0..<20).map { "\($0)" }
     private lazy var dateFormatter: DateFormatter = {
@@ -21,11 +23,13 @@ final class ImagesListViewController: UIViewController {
         return formatter
     }()
     
+    // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
     
+    // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showSingleImageSegueIdentifier {
             guard
@@ -42,6 +46,7 @@ final class ImagesListViewController: UIViewController {
         }
     }
     
+    // MARK: - Private Methods
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         let imageName = photosName[indexPath.row]
         guard let image = UIImage(named: imageName) else { return }
@@ -57,6 +62,7 @@ final class ImagesListViewController: UIViewController {
     }
 }
 
+// MARK: - UITableViewDelegate
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
@@ -73,6 +79,7 @@ extension ImagesListViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - UITableViewDataSource
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         photosName.count
