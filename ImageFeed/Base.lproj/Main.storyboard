@@ -189,7 +189,7 @@
                                     <constraint firstAttribute="width" constant="50" id="PaI-ol-6FA"/>
                                 </constraints>
                                 <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="Sharing"/>
+                                <buttonConfiguration key="configuration" style="plain" image="Share"/>
                                 <connections>
                                     <action selector="didTapShareButton" destination="Vd0-TY-n8p" eventType="touchUpInside" id="P2B-zh-cvf"/>
                                 </connections>
@@ -225,7 +225,7 @@
         <image name="Favorites Active" width="44" height="44"/>
         <image name="Main Tab Active" width="30" height="30"/>
         <image name="Profile Tab Active" width="30" height="30"/>
-        <image name="Sharing" width="50" height="50"/>
+        <image name="Share" width="50" height="50"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>
