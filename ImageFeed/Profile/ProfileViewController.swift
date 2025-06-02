@@ -58,12 +58,10 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
-    private lazy var logoutButton: UIButton = { [weak self] in
+    private lazy var logoutButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "Exit"), for: .normal)
-        if let self {
-            button.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
-        }
+        button.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
         return button
     }()
 
