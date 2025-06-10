@@ -45,7 +45,11 @@ final class AuthViewController: UIViewController {
         button.backgroundColor = .ypWhite
         button.layer.cornerRadius = 16
         button.layer.masksToBounds = true
-        button.addTarget(self, action: #selector(didTapLoginButton), for: .touchUpInside)
+        button.addTarget(
+            self,
+            action: #selector(didTapLoginButton),
+            for: .touchUpInside
+        )
         return button
     }()
     
@@ -55,7 +59,6 @@ final class AuthViewController: UIViewController {
         view.backgroundColor = .ypBlack
         addSubviews()
         setupLayout()
-        configureBackButton()
     }
     
     // MARK: - Navigation
@@ -90,13 +93,6 @@ final class AuthViewController: UIViewController {
             loginButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: AuthViewConstants.Layout.trailingPadding),
             loginButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: AuthViewConstants.Layout.bottomPadding)
         ])
-    }
-    
-    private func configureBackButton() {
-        navigationController?.navigationBar.backIndicatorImage = UIImage(named: AuthViewConstants.Text.backButtonName)
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: AuthViewConstants.Text.backButtonName)
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem?.tintColor = .ypBlack
     }
     
     // MARK: - Actions
