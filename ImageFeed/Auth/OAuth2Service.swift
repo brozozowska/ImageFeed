@@ -8,6 +8,7 @@
 import Foundation
 
 final class OAuth2Service {
+    
     // MARK: - Constants
     private enum OAuth2ServiceConstants {
         static let unsplashSchemaAndHostNameString = "https://unsplash.com/"
@@ -15,13 +16,15 @@ final class OAuth2Service {
         static let unsplashGrantTypeString = "authorization_code"
     }
     
+    // MARK: - Singleton
     static let shared = OAuth2Service()
     
     private init() {}
     
+    // MARK: - Private Methods
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: OAuth2ServiceConstants.unsplashSchemaAndHostNameString) else {
-            assertionFailure("❌ Не удалось создать URLComponents из строки: \(OAuth2ServiceConstants.unsplashSchemaAndHostNameString)")
+            print("❌ Не удалось создать URLComponents из строки: \(OAuth2ServiceConstants.unsplashSchemaAndHostNameString)")
             return nil
         }
         urlComponents.path = OAuth2ServiceConstants.unsplashTokenPathString
@@ -33,7 +36,7 @@ final class OAuth2Service {
             URLQueryItem(name: "grant_type", value: OAuth2ServiceConstants.unsplashGrantTypeString)
         ]
         guard let url = urlComponents.url else {
-            assertionFailure("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
+            print("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
             return nil
         }
         var request = URLRequest(url: url)
@@ -41,10 +44,11 @@ final class OAuth2Service {
         return request
     }
     
+    // MARK: - Public Methods
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
         guard let request = makeOAuthTokenRequest(code: code) else {
             completion(.failure(NetworkError.urlSessionError))
-            print("Неизвестная ошибка URLSession")
+            print("❌ Неизвестная ошибка URLSession")
             return
         }
         
@@ -54,24 +58,27 @@ final class OAuth2Service {
                 do {
                     let decoder = JSONDecoder()
                     let tokenResponse = try decoder.decode(OAuthTokenResponseBody.self, from: data)
+                    let storage = OAuth2TokenStorage()
+                    storage.token = tokenResponse.accessToken
+                    print("✅ Токен сохранён в UserDefaults: \(storage.token ?? "nil")")
                     completion(.success(tokenResponse.accessToken))
                 } catch {
                     completion(.failure(error))
-                    print("Ошибка декодирования OAuthTokenResponseBody:", error)
+                    print("❌ Ошибка декодирования OAuthTokenResponseBody:", error)
                 }
             case .failure(let error):
                 completion(.failure(error))
                 if let networkError = error as? NetworkError {
                     switch networkError {
                     case .httpStatusCode(let code):
-                        print("Ошибка сервиса Unsplash, HTTP статус: \(code)")
+                        print("❌ Ошибка сервиса Unsplash, HTTP статус: \(code)")
                     case .urlRequestError(let error):
-                        print("Сетевая ошибка: \(error)")
+                        print("❌ Сетевая ошибка: \(error)")
                     case .urlSessionError:
-                        print("Неизвестная ошибка URLSession")
+                        print("❌ Неизвестная ошибка URLSession")
                     }
                 } else {
-                    print("Другая ошибка: \(error)")
+                    print("❌ Другая ошибка: \(error)")
                 }
             }
         }

@@ -14,9 +14,7 @@ protocol WebViewViewControllerDelegate: AnyObject {
         didAuthenticateWithCode code: String
     )
     
-    func webViewViewControllerDidCancel(
-        _ vc: WebViewViewController
-    )
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
 final class WebViewViewController: UIViewController {
@@ -137,7 +135,7 @@ final class WebViewViewController: UIViewController {
     // MARK: - Load Authorization Page
     private func loadAuthView() {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            assertionFailure("❌ Не удалось создать URLComponents из строки: \(WebViewConstants.unsplashAuthorizeURLString)")
+            print("❌ Не удалось создать URLComponents из строки: \(WebViewConstants.unsplashAuthorizeURLString)")
             return
         }
         urlComponents.queryItems = [
@@ -147,7 +145,7 @@ final class WebViewViewController: UIViewController {
             URLQueryItem(name: "scope", value: Constants.accessScope)
         ]
         guard let url = urlComponents.url else {
-            assertionFailure("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
+            print("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
             return
         }
         let request = URLRequest(url: url)
@@ -177,15 +175,22 @@ extension WebViewViewController: WKNavigationDelegate {
     }
     
     func code(from navigationAction: WKNavigationAction) -> String? {
+        guard let url = navigationAction.request.url else {
+            print("❌ Не удалось извлечь URL из navigationAction")
+            return nil
+        }
+        
         if
-            let url = navigationAction.request.url,
             let urlComponents = URLComponents(string: url.absoluteString),
             urlComponents.path == "/oauth/authorize/native",
             let items = urlComponents.queryItems,
             let codeItem = items.first(where: { $0.name == "code" })
         {
+            print("🔄 Переход на URL: \(url.absoluteString)")
+            print("✅ Код авторизации получен: \(codeItem)")
             return codeItem.value
         } else {
+            print("🔄 Переход на URL: \(url.absoluteString)")
             return nil
         }
     }

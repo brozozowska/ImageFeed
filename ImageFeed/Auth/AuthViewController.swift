@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol AuthViewControllerDelegate: AnyObject {
+    func didAuthenticate(_ vc: AuthViewController)
+}
+
 final class AuthViewController: UIViewController {
     
     // MARK: - Constants
@@ -53,6 +57,9 @@ final class AuthViewController: UIViewController {
         return button
     }()
     
+    // MARK: - Public Properties
+    weak var delegate: AuthViewControllerDelegate?
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -68,7 +75,6 @@ final class AuthViewController: UIViewController {
             webViewVC.delegate = self
         }
     }
-
     
     // MARK: - Setup Methods
     private func addSubviews() {
@@ -101,25 +107,29 @@ final class AuthViewController: UIViewController {
     }
 }
 
-    // MARK: - WebViewViewControllerDelegate
+// MARK: - WebViewViewControllerDelegate
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(
         _ vc: WebViewViewController,
         didAuthenticateWithCode code: String
     ) {
-        OAuth2Service.shared.fetchOAuthToken(code: code) { result in
-            switch result {
-                case .success(let token):
-                print("Токен получен: \(token)")
-            case .failure(let error):
-                print("Ошибка при получении токена: \(error)")
+        vc.dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+            OAuth2Service.shared.fetchOAuthToken(code: code) { result in
+                switch result {
+                    case .success(let token):
+                    print("✅ Токен получен: \(token)")
+                    DispatchQueue.main.async {
+                        self.delegate?.didAuthenticate(self)
+                    }
+                case .failure(let error):
+                    print("❌ Ошибка при получении токена: \(error)")
+                }
             }
         }
     }
 
-    func webViewViewControllerDidCancel(
-        _ vc: WebViewViewController
-    ) {
+    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         vc.dismiss(animated: true)
     }
 }
