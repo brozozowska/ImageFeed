@@ -12,11 +12,26 @@ final class SplashViewController: UIViewController {
     // MARK: - Private Properties
     private let showAuthViewSegueIdentifier = "ShowAuthView"
     private let storage = OAuth2TokenStorage()
+    private let splashViewImageName = "Vector"
+    
+    // MARK: - UI Elements
+    private lazy var splashViewImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage(named: splashViewImageName)
+        return imageView
+    }()
     
     // MARK: - Lifecycle
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .ypBlack
+        addSubviews()
+        setupLayout()
+    }
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if let token = storage.token {
+        if storage.token != nil {
             print("✅ Токен найден: переход к экрану с изображениями")
             switchToTabBarController()
         } else {
@@ -24,7 +39,24 @@ final class SplashViewController: UIViewController {
             performSegue(withIdentifier: showAuthViewSegueIdentifier, sender: nil)
         }
     }
-    ;
+    
+    // MARK: - Setup Methods
+    private func addSubviews() {
+        [
+            splashViewImage
+        ].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview($0)
+        }
+    }
+    
+    private func setupLayout() {
+        NSLayoutConstraint.activate([
+            splashViewImage.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            splashViewImage.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
+    }
+    
     // MARK: - Private Methods
     private func switchToTabBarController() {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,

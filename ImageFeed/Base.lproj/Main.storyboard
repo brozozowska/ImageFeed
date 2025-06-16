@@ -138,7 +138,7 @@
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     </view>
                     <connections>
-                        <segue destination="TfC-SM-C3A" kind="presentation" identifier="ShowAuthView" modalPresentationStyle="fullScreen" modalTransitionStyle="crossDissolve" id="RdR-os-FUb"/>
+                        <segue destination="TfC-SM-C3A" kind="presentation" identifier="ShowAuthView" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="RdR-os-FUb"/>
                         <segue destination="ttZ-eV-w6b" kind="show" identifier="ShowImagesList" id="Xhp-xQ-Q5n"/>
                     </connections>
                 </viewController>
