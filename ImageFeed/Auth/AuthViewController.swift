@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 protocol AuthViewControllerDelegate: AnyObject {
     func didAuthenticate(_ vc: AuthViewController)
@@ -103,6 +104,7 @@ final class AuthViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func didTapLoginButton() {
+        guard !UIBlockingProgressHUD.isVisible else { return }
         performSegue(withIdentifier: AuthViewConstants.SegueIdentifier.showWebView, sender: self)
     }
 }
@@ -115,7 +117,12 @@ extension AuthViewController: WebViewViewControllerDelegate {
     ) {
         vc.dismiss(animated: true) { [weak self] in
             guard let self else { return }
+            UIBlockingProgressHUD.show()
+            
             OAuth2Service.shared.fetchOAuthToken(code: code) { result in
+                DispatchQueue.main.async {
+                    UIBlockingProgressHUD.dismiss()
+                }
                 switch result {
                     case .success(let token):
                     print("✅ Токен получен: \(token)")

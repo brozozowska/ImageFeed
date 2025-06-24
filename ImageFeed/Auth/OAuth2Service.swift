@@ -7,7 +7,16 @@
 
 import Foundation
 
+enum AuthServiceError: Error {
+    case invalidRequest
+}
+
 final class OAuth2Service {
+    
+    // MARK: - Private Properties
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
     // MARK: - Constants
     private enum OAuth2ServiceConstants {
@@ -18,7 +27,6 @@ final class OAuth2Service {
     
     // MARK: - Singleton
     static let shared = OAuth2Service()
-    
     private init() {}
     
     // MARK: - Private Methods
@@ -36,7 +44,7 @@ final class OAuth2Service {
             URLQueryItem(name: "grant_type", value: OAuth2ServiceConstants.unsplashGrantTypeString)
         ]
         guard let url = urlComponents.url else {
-            print("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
+            print("❌ Не удалось получить URL из URLComponents: \(urlComponents)")
             return nil
         }
         var request = URLRequest(url: url)
@@ -46,15 +54,52 @@ final class OAuth2Service {
     
     // MARK: - Public Methods
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        
+        guard lastCode != code else {
+            completion(.failure(AuthServiceError.invalidRequest))
+            return
+        }
+        task?.cancel()
+        lastCode = code
+        
         guard let request = makeOAuthTokenRequest(code: code) else {
-            completion(.failure(NetworkError.urlSessionError))
-            print("❌ Неизвестная ошибка URLSession")
+            completion(.failure(AuthServiceError.invalidRequest))
+            print("❌ Не удалось собрать URLRequest")
             return
         }
         
-        let task = URLSession.shared.data(for: request) { result in
-            switch result {
-            case .success(let data):
+        let currentTask = urlSession.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                
+                if let error {
+                    completion(.failure(error))
+                    if let networkError = error as? NetworkError {
+                        switch networkError {
+                        case .httpStatusCode(let code):
+                            print("❌ Ошибка сервиса Unsplash, HTTP статус: \(code)")
+                        case .urlRequestError(let error):
+                            print("❌ Сетевая ошибка: \(error)")
+                        case .urlSessionError:
+                            print("❌ Неизвестная ошибка URLSession")
+                        }
+                    } else {
+                        print("❌ Другая ошибка: \(error)")
+                    }
+                    self.task = nil
+                    self.lastCode = nil
+                    return
+                }
+                
+                guard let data else {
+                    print("❌ Сервер вернул пустой ответ")
+                    completion(.failure(AuthServiceError.invalidRequest))
+                    self.task = nil
+                    self.lastCode = nil
+                    return
+                }
+                
                 do {
                     let decoder = JSONDecoder()
                     let tokenResponse = try decoder.decode(OAuthTokenResponseBody.self, from: data)
@@ -66,22 +111,11 @@ final class OAuth2Service {
                     completion(.failure(error))
                     print("❌ Ошибка декодирования OAuthTokenResponseBody:", error)
                 }
-            case .failure(let error):
-                completion(.failure(error))
-                if let networkError = error as? NetworkError {
-                    switch networkError {
-                    case .httpStatusCode(let code):
-                        print("❌ Ошибка сервиса Unsplash, HTTP статус: \(code)")
-                    case .urlRequestError(let error):
-                        print("❌ Сетевая ошибка: \(error)")
-                    case .urlSessionError:
-                        print("❌ Неизвестная ошибка URLSession")
-                    }
-                } else {
-                    print("❌ Другая ошибка: \(error)")
-                }
+                self.task = nil
+                self.lastCode = nil
             }
         }
-        task.resume()
+        self.task = currentTask
+        currentTask.resume()
     }
 }
