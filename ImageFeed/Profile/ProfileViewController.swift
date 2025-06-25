@@ -73,6 +73,23 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         addSubviews()
         setupLayout()
+        
+        let tokenStorage = OAuth2TokenStorage()
+        guard let token = tokenStorage.token else {
+            print("❌ Токен не найден")
+            return
+        }
+        ProfileService.shared.fetchProfile(token: token) { [weak self] result in
+            print("📡 fetchProfile вызван")
+            switch result {
+            case .success(let profile):
+                DispatchQueue.main.async {
+                    self?.updateProfileDetails(profile)
+                }
+            case .failure(let error):
+                print("❌ Не удалось загрузить профиль:", error)
+            }
+        }
     }
     
     // MARK: - Setup Methods
@@ -111,6 +128,13 @@ final class ProfileViewController: UIViewController {
             descriptionLabel.leadingAnchor.constraint(equalTo: avatarImage.leadingAnchor),
             descriptionLabel.trailingAnchor.constraint(equalTo: logoutButton.trailingAnchor),
         ])
+    }
+    
+    private func updateProfileDetails(_ profile: Profile) {
+        print("✅ Обновление UI с профилем: \(profile.name)")
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
     }
     
     // MARK: - Actions
