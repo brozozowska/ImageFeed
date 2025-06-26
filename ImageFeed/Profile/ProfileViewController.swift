@@ -9,6 +9,9 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
+    // MARK: - Private Properties
+    private let profileService = ProfileService.shared
+    
     // MARK: - Constants
     private enum ProfileViewConstants {
         enum Layout {
@@ -74,21 +77,10 @@ final class ProfileViewController: UIViewController {
         addSubviews()
         setupLayout()
         
-        let tokenStorage = OAuth2TokenStorage()
-        guard let token = tokenStorage.token else {
-            print("❌ Токен не найден")
-            return
-        }
-        ProfileService.shared.fetchProfile(token: token) { [weak self] result in
-            print("📡 fetchProfile вызван")
-            switch result {
-            case .success(let profile):
-                DispatchQueue.main.async {
-                    self?.updateProfileDetails(profile)
-                }
-            case .failure(let error):
-                print("❌ Не удалось загрузить профиль:", error)
-            }
+        if let profile = profileService.profile {
+            updateProfileDetails(profile)
+        } else {
+            print("⚠️ Профиль ещё не загружен")
         }
     }
     

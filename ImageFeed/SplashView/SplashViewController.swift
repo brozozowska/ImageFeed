@@ -13,6 +13,7 @@ final class SplashViewController: UIViewController {
     private let showAuthViewSegueIdentifier = "ShowAuthView"
     private let storage = OAuth2TokenStorage()
     private let splashViewImageName = "Vector"
+    private let profileService = ProfileService.shared
     
     // MARK: - UI Elements
     private lazy var splashViewImage: UIImageView = {
@@ -31,9 +32,9 @@ final class SplashViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if storage.token != nil {
-            print("✅ Токен найден: переход к экрану с изображениями")
-            switchToTabBarController()
+        if let token = storage.token {
+            print("✅ Токен найден: получаем профиль и переходим к экрану с изображениями")
+            fetchProfile(token: token)
         } else {
             print("🔑 Токена нет: переход к авторизации")
             performSegue(withIdentifier: showAuthViewSegueIdentifier, sender: nil)
@@ -91,6 +92,23 @@ extension SplashViewController: AuthViewControllerDelegate {
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true) { [weak self] in
             self?.switchToTabBarController()
+        }
+        guard let token = storage.token else { return }
+        fetchProfile(token: token)
+    }
+    
+    func fetchProfile(token: String) {
+        UIBlockingProgressHUD.show()
+        profileService.fetchProfile(token: token) { [weak self] result in
+            UIBlockingProgressHUD.dismiss()
+            guard let self else { return }
+            switch result {
+            case .success:
+                self.switchToTabBarController()
+            case .failure:
+                // TODO: [Sprint 11] Покажите ошибку получения профиля
+                break
+            }
         }
     }
 }

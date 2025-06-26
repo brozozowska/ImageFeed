@@ -18,6 +18,7 @@ final class ProfileService {
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
     private var lastToken: String?
+    private(set) var profile: Profile?
     
     // MARK: - Constants
     private enum ProfileServiceConstants {
@@ -76,6 +77,7 @@ final class ProfileService {
                     let decoder = JSONDecoder()
                     let profileResponse = try decoder.decode(ProfileResult.self, from: data)
                     let profile = Profile(from: profileResponse)
+                    self.profile = profile
                     completion(.success(profile))
                     print("✅ Данные профиля успешно декодированы")
                 } catch {
