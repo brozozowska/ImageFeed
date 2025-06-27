@@ -11,6 +11,7 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Private Properties
     private let profileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     // MARK: - Constants
     private enum ProfileViewConstants {
@@ -82,6 +83,16 @@ final class ProfileViewController: UIViewController {
         } else {
             print("⚠️ Профиль ещё не загружен")
         }
+        
+        profileImageServiceObserver = NotificationCenter.default.addObserver(
+            forName: ProfileImageService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.updateAvatar()
+        }
+        updateAvatar()
     }
     
     // MARK: - Setup Methods
@@ -129,9 +140,16 @@ final class ProfileViewController: UIViewController {
         descriptionLabel.text = profile.bio
     }
     
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+        // TODO: [Sprint 11] Обновить аватар, используя Kingfisher
+    }
+    
     // MARK: - Actions
     @objc private func didTapLogoutButton() {
         // TODO: Реализовать выход
     }
-    
 }

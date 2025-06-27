@@ -17,7 +17,6 @@ final class ProfileService {
     // MARK: - Private Properties
     private let urlSession = URLSession.shared
     private var task: URLSessionTask?
-    private var lastToken: String?
     private(set) var profile: Profile?
     
     // MARK: - Constants
