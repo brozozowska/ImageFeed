@@ -34,10 +34,10 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         if let token = storage.token {
-            print("✅ Токен найден: получаем профиль и переходим к экрану с изображениями")
+            print("🔑 [SplashViewController.viewDidAppear]: Токен найден: получаем профиль и переходим к экрану с изображениями")
             fetchProfile(token: token)
         } else {
-            print("🔑 Токена нет: переход к авторизации")
+            print("🔑 [SplashViewController.viewDidAppear]: Токена нет: переход к авторизации")
             performSegue(withIdentifier: showAuthViewSegueIdentifier, sender: nil)
         }
     }
@@ -63,7 +63,7 @@ final class SplashViewController: UIViewController {
     private func switchToTabBarController() {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let window = windowScene.windows.first else {
-            assertionFailure("Invalid window configuration")
+            assertionFailure("❌ [SplashViewController.switchToTabBarController]: Нет активной UIWindowScene")
             return
         }
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
@@ -81,7 +81,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                 let navigationController = segue.destination as? UINavigationController,
                 let viewController = navigationController.viewControllers.first as? AuthViewController
             else {
-                assertionFailure("Failed to prepare for \(showAuthViewSegueIdentifier)")
+                assertionFailure("❌ [SplashViewController.prepare]: Не удалось подготовиться к переходу \(showAuthViewSegueIdentifier)")
                 return
             }
             viewController.delegate = self
@@ -107,7 +107,7 @@ extension SplashViewController: AuthViewControllerDelegate {
             case .success(let profile):
                 let username = profile.username
                 profileImageService.fetchProfileImageURL(username: username, token: token) { _ in
-                    print("✅ Вызов метода получения аватара")
+                    print("✅ [SplashViewController.fetchProfile]: Вызов метода получения аватара")
                 }
                 self.switchToTabBarController()
             case .failure:

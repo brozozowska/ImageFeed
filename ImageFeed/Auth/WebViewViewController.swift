@@ -42,6 +42,10 @@ final class WebViewViewController: UIViewController {
     // MARK: - Public Properties
     weak var delegate: WebViewViewControllerDelegate?
     
+    // MARK: - Private Properties
+    private var estimatedProgressObservation: NSKeyValueObservation?
+
+    
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,50 +55,15 @@ final class WebViewViewController: UIViewController {
         loadAuthView()
         configureBackButton()
         webView.navigationDelegate = self
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        webView.addObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
-            options: .new,
-            context: nil
+        
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+             options: [],
+             changeHandler: { [weak self] _, _ in
+                 guard let self else { return }
+                 self.updateProgress()
+             }
         )
-        updateProgress()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        webView.removeObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
-            context: nil
-        )
-    }
-    
-    // MARK: - KVO (Progress Observation)
-    override func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
-        context: UnsafeMutableRawPointer?
-    ) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-           updateProgress()
-        } else {
-            super.observeValue(
-                forKeyPath: keyPath,
-                of: object,
-                change: change,
-                context: context
-            )
-        }
-    }
-    
-    private func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
     
     // MARK: - UI Setup
@@ -132,10 +101,15 @@ final class WebViewViewController: UIViewController {
         navigationItem.leftBarButtonItem = backButton
     }
     
+    private func updateProgress() {
+        progressView.progress = Float(webView.estimatedProgress)
+        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
+    }
+    
     // MARK: - Load Authorization Page
     private func loadAuthView() {
         guard var urlComponents = URLComponents(string: WebViewConstants.unsplashAuthorizeURLString) else {
-            print("❌ Не удалось создать URLComponents из строки: \(WebViewConstants.unsplashAuthorizeURLString)")
+            print("❌ [WebViewViewController.loadAuthView]: Failure - не удалось создать URLComponents из строки: \(WebViewConstants.unsplashAuthorizeURLString)")
             return
         }
         urlComponents.queryItems = [
@@ -145,7 +119,7 @@ final class WebViewViewController: UIViewController {
             URLQueryItem(name: "scope", value: Constants.accessScope)
         ]
         guard let url = urlComponents.url else {
-            print("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
+            print("❌ [WebViewViewController.loadAuthView]: Failure - не удалось получить URL из URLComponents: \(urlComponents)")
             return
         }
         let request = URLRequest(url: url)
@@ -176,7 +150,7 @@ extension WebViewViewController: WKNavigationDelegate {
     
     func code(from navigationAction: WKNavigationAction) -> String? {
         guard let url = navigationAction.request.url else {
-            print("❌ Не удалось извлечь URL из navigationAction")
+            print("❌ [WebViewViewController.code]: Failure - не удалось извлечь URL из navigationAction")
             return nil
         }
         
@@ -186,11 +160,11 @@ extension WebViewViewController: WKNavigationDelegate {
             let items = urlComponents.queryItems,
             let codeItem = items.first(where: { $0.name == "code" })
         {
-            print("🔄 Переход на URL: \(url.absoluteString)")
-            print("✅ Код авторизации получен: \(codeItem)")
+            print("🔄 [WebViewViewController.code]: Переход на URL: \(url.absoluteString)")
+            print("✅ [WebViewViewController.code]: Success - код авторизации получен: \(codeItem)")
             return codeItem.value
         } else {
-            print("🔄 Переход на URL: \(url.absoluteString)")
+            print("🔄 [WebViewViewController.code]: Переход на URL: \(url.absoluteString)")
             return nil
         }
     }

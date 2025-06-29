@@ -10,7 +10,11 @@ import ProgressHUD
 
 final class UIBlockingProgressHUD {
     private static var window: UIWindow? {
-        return UIApplication.shared.windows.first
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            assertionFailure("❌ [UIBlockingProgressHUD]: Нет активной UIWindowScene")
+            return nil
+        }
+        return windowScene.windows.first
     }
     
     private static var isShown = false
@@ -23,7 +27,7 @@ final class UIBlockingProgressHUD {
         guard !isShown else { return }
         isShown = true
         window?.isUserInteractionEnabled = false
-        print("🔒 Экран заблокирован")
+        print("🔒 [UIBlockingProgressHUD.show]: Экран заблокирован")
         ProgressHUD.animate()
     }
     
@@ -31,7 +35,7 @@ final class UIBlockingProgressHUD {
         guard isShown else { return }
         isShown = false
         window?.isUserInteractionEnabled = true
-        print("🔓 Экран разблокирован")
+        print("🔒 [UIBlockingProgressHUD.dismiss]: Экран разблокирован")
         ProgressHUD.dismiss()
     }
 }

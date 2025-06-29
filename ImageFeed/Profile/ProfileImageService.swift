@@ -34,7 +34,7 @@ final class ProfileImageService {
     private func makeProfileImageURLRequest(username: String, token: String) -> URLRequest? {
         let urlString = "\(ProfileImageServiceConstants.profileImageURLString)\(username)"
         guard let url = URL(string: urlString) else {
-            print("❌ Не удалось создать URL запроса аватарки")
+            print("❌ [ProfileImageService.makeProfileImageURLRequest]: Failure - не удалось создать URL для запроса аватарки")
             return nil
         }
         var request = URLRequest(url: url)
@@ -50,47 +50,33 @@ final class ProfileImageService {
         task?.cancel()
         
         guard let request = makeProfileImageURLRequest(username: username, token: token) else {
+            print("❌ [ProfileImageService.fetchProfileImageURL]: Failure - не удалось создать запрос URL аватарки")
             completion(.failure(ProfileImageURLError.invalidToken))
-            print("❌ Не удалось создать запрос URL аватарки")
             return
         }
                                                        
-        let currentTask = urlSession.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                guard let self else { return }
+        let currentTask = urlSession.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
+            guard let self else { return }
+
+            defer {
+                self.task = nil
+            }
+            
+            switch result {
+            case .success(let userResult):
+                let avatarURL = userResult.profileImage.small
+                self.avatarURL = avatarURL
+                print("✅ [ProfileImageService.fetchProfileImageURL]: Success - данные URL аватарки успешно декодированы")
+                completion(.success(avatarURL))
                 
-                defer {
-                    self.task = nil
-                }
-                
-                if let error {
-                    completion(.failure(error))
-                    print("❌ Ошибка запроса: \(error)")
-                    return
-                }
-                
-                guard let data else {
-                    completion(.failure(ProfileImageURLError.invalidRequest))
-                    print("❌ Сервер вернул пустой ответ")
-                    return
-                }
-                
-                do {
-                    let decoder = JSONDecoder()
-                    let userResult = try decoder.decode(UserResult.self, from: data)
-                    let avatarURL = userResult.profileImage.small
-                    self.avatarURL = avatarURL
-                    completion(.success(avatarURL))
-                    print("✅ Данные URL аватарки успешно декодированы")
-                    NotificationCenter.default.post(
-                        name: ProfileImageService.didChangeNotification,
-                        object: self,
-                        userInfo: ["URL": avatarURL]
-                    )
-                } catch {
-                    completion(.failure(error))
-                    print("❌ Ошибка декодирования данных URL аватарки:", error)
-                }
+                NotificationCenter.default.post(
+                    name: ProfileImageService.didChangeNotification,
+                    object: self,
+                    userInfo: ["URL": avatarURL]
+                )
+            case .failure(let error):
+                print("❌ [ProfileImageService.fetchProfileImageURL]: Failure - ошибка при запросе или декодирования URL аватарки:", error)
+                completion(.failure(error))
             }
         }
         self.task = currentTask

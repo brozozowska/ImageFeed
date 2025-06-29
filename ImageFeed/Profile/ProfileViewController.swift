@@ -81,7 +81,7 @@ final class ProfileViewController: UIViewController {
         if let profile = profileService.profile {
             updateProfileDetails(profile)
         } else {
-            print("⚠️ Профиль ещё не загружен")
+            print("⚠️ [ProfileViewController.viewDidLoad]: Профиль ещё не загружен")
         }
         
         profileImageServiceObserver = NotificationCenter.default.addObserver(
@@ -134,7 +134,7 @@ final class ProfileViewController: UIViewController {
     }
     
     private func updateProfileDetails(_ profile: Profile) {
-        print("✅ Обновление UI с профилем: \(profile.name)")
+        print("✅ [ProfileViewController.updateProfileDetails]: Success - обновление UI с профилем: \(profile.name)")
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio

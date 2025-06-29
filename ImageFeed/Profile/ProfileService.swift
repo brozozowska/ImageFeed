@@ -31,7 +31,7 @@ final class ProfileService {
     // MARK: - Private Methods
     private func makeProfileRequest(token: String) -> URLRequest? {
         guard let url = URL(string: ProfileServiceConstants.profileURLString) else {
-            print("❌ Не удалось создать URL для профиля")
+            print("❌ [ProfileService.makeProfileRequest]: Failure - не удалось создать URL для профиля")
             return nil
         }
         var request = URLRequest(url: url)
@@ -47,42 +47,27 @@ final class ProfileService {
         task?.cancel()
         
         guard let request = makeProfileRequest(token: token) else {
+            print("❌ [ProfileService.fetchProfile]: Failure - не удалось создать запрос профиля")
             completion(.failure(ProfileError.invalidToken))
-            print("❌ Не удалось создать запрос профиля")
             return
         }
         
-        let currentTask = urlSession.dataTask(with: request) { [weak self] data, response, error in
-            DispatchQueue.main.async {
-                guard let self else { return }
-                
-                defer {
-                    self.task = nil
-                }
-                
-                if let error {
-                    completion(.failure(error))
-                    print("❌ Ошибка запроса: \(error)")
-                    return
-                }
-                
-                guard let data else {
-                    completion(.failure(ProfileError.invalidRequest))
-                    print("❌ Сервер вернул пустой ответ")
-                    return
-                }
-                
-                do {
-                    let decoder = JSONDecoder()
-                    let profileResponse = try decoder.decode(ProfileResult.self, from: data)
-                    let profile = Profile(from: profileResponse)
-                    self.profile = profile
-                    completion(.success(profile))
-                    print("✅ Данные профиля успешно декодированы")
-                } catch {
-                    completion(.failure(error))
-                    print("❌ Ошибка декодирования ProfileResult:", error)
-                }
+        let currentTask = urlSession.objectTask(for: request) { [weak self] (result: Result<ProfileResult, Error>) in
+            guard let self else { return }
+            
+            defer {
+                self.task = nil
+            }
+            
+            switch result {
+            case .success(let profileResponse):
+                let profile = Profile(from: profileResponse)
+                self.profile = profile
+                print("✅ [ProfileService.fetchProfile]: Success - данные профиля успешно декодированы")
+                completion(.success(profile))
+            case .failure(let error):
+                print("❌ [ProfileService.fetchProfile]: Failure - Ошибка запроса или декодирования ProfileResult:", error)
+                completion(.failure(error))
             }
         }
         self.task = currentTask
