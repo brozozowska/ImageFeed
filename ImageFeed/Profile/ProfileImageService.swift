@@ -64,7 +64,7 @@ final class ProfileImageService {
             
             switch result {
             case .success(let userResult):
-                let avatarURL = userResult.profileImage.small
+                let avatarURL = userResult.profileImage.large
                 self.avatarURL = avatarURL
                 print("✅ [ProfileImageService.fetchProfileImageURL]: Success - данные URL аватарки успешно декодированы")
                 completion(.success(avatarURL))
@@ -94,4 +94,6 @@ struct UserResult: Codable {
 
 struct ProfileImage: Codable {
     let small: String
+    let medium: String
+    let large: String
 }

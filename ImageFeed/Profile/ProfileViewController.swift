@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
     
@@ -24,6 +25,10 @@ final class ProfileViewController: UIViewController {
             static let verticalSpacing: CGFloat = 8
         }
         
+        enum Images {
+                static let placeholderUserpic = "placeholderUserpic"
+            }
+        
         enum Mock {
             static let imageName = "mockUserpic"
             static let name = "Екатерина Новикова"
@@ -36,6 +41,9 @@ final class ProfileViewController: UIViewController {
     private lazy var avatarImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: ProfileViewConstants.Mock.imageName)
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = ProfileViewConstants.Layout.avatarSize / 2
         return imageView
     }()
     
@@ -144,8 +152,29 @@ final class ProfileViewController: UIViewController {
         guard
             let profileImageURL = ProfileImageService.shared.avatarURL,
             let url = URL(string: profileImageURL)
-        else { return }
-        // TODO: [Sprint 11] Обновить аватар, используя Kingfisher
+        else {
+            print("⚠️ [ProfileViewController.updateAvatar]: Некорректный URL аватарки: \(ProfileImageService.shared.avatarURL ?? "nil")")
+            return
+        }
+        
+        avatarImage.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: ProfileViewConstants.Images.placeholderUserpic),
+            options: [
+                .transition(.fade(0.2)),
+                .cacheOriginalImage,
+                .memoryCacheExpiration(.seconds(60)),
+                .diskCacheExpiration(.days(1))
+            ],
+            completionHandler: { result in
+                switch result {
+                case .success:
+                    print("✅ [ProfileViewController.updateAvatar]: Успешно обновлён аватар")
+                case .failure(let error):
+                    print("❌ [ProfileViewController.updateAvatar]: Ошибка загрузки аватара: \(error)")
+                }
+            }
+        )
     }
     
     // MARK: - Actions
