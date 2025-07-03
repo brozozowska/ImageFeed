@@ -10,7 +10,6 @@ import UIKit
 final class SplashViewController: UIViewController {
     
     // MARK: - Private Properties
-    private let showAuthViewSegueIdentifier = "ShowAuthView"
     private let storage = OAuth2TokenStorage()
     private let splashViewImageName = "Vector"
     private let profileService = ProfileService.shared
@@ -38,7 +37,7 @@ final class SplashViewController: UIViewController {
             fetchProfile(token: token)
         } else {
             print("🔑 [SplashViewController.viewDidAppear]: Токена нет: переход к авторизации")
-            performSegue(withIdentifier: showAuthViewSegueIdentifier, sender: nil)
+            presentAuthViewController()
         }
     }
     
@@ -60,6 +59,19 @@ final class SplashViewController: UIViewController {
     }
     
     // MARK: - Private Methods
+    private func presentAuthViewController() {
+        let storyboard = UIStoryboard(name: "Main", bundle: .main)
+        guard let authViewController = storyboard.instantiateViewController(
+            withIdentifier: "AuthViewController"
+        ) as? AuthViewController else {
+            assertionFailure("❌ [SplashViewController.presentAuthViewController]: Не удалось найти AuthViewController по ID")
+            return
+        }
+        authViewController.delegate = self
+        authViewController.modalPresentationStyle = .fullScreen
+        present(authViewController, animated: true)
+    }
+    
     private func switchToTabBarController() {
         guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
             let window = windowScene.windows.first else {
@@ -67,7 +79,9 @@ final class SplashViewController: UIViewController {
             return
         }
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
-        let tabBarController = storyboard.instantiateViewController(withIdentifier: "TabBarController")
+        let tabBarController = storyboard.instantiateViewController(
+            withIdentifier: "TabBarController"
+        )
         window.rootViewController = tabBarController
         window.makeKeyAndVisible()
     }
@@ -75,20 +89,6 @@ final class SplashViewController: UIViewController {
 
 // MARK: - AuthViewControllerDelegate
 extension SplashViewController: AuthViewControllerDelegate {
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == showAuthViewSegueIdentifier {
-            guard
-                let navigationController = segue.destination as? UINavigationController,
-                let viewController = navigationController.viewControllers.first as? AuthViewController
-            else {
-                assertionFailure("❌ [SplashViewController.prepare]: Не удалось подготовиться к переходу \(showAuthViewSegueIdentifier)")
-                return
-            }
-            viewController.delegate = self
-        } else {
-            super.prepare(for: segue, sender: sender)
-        }
-    }
     
     func didAuthenticate(_ vc: AuthViewController) {
         vc.dismiss(animated: true) { [weak self] in
