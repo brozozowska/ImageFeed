@@ -6,8 +6,13 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class ProfileViewController: UIViewController {
+    
+    // MARK: - Private Properties
+    private let profileService = ProfileService.shared
+    private var profileImageServiceObserver: NSObjectProtocol?
     
     // MARK: - Constants
     private enum ProfileViewConstants {
@@ -19,6 +24,10 @@ final class ProfileViewController: UIViewController {
             static let trailingPadding: CGFloat = -16
             static let verticalSpacing: CGFloat = 8
         }
+        
+        enum Images {
+                static let placeholderUserpic = "placeholderUserpic"
+            }
         
         enum Mock {
             static let imageName = "mockUserpic"
@@ -32,6 +41,9 @@ final class ProfileViewController: UIViewController {
     private lazy var avatarImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(named: ProfileViewConstants.Mock.imageName)
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = ProfileViewConstants.Layout.avatarSize / 2
         return imageView
     }()
     
@@ -73,6 +85,22 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         addSubviews()
         setupLayout()
+        
+        if let profile = profileService.profile {
+            updateProfileDetails(profile)
+        } else {
+            print("⚠️ [ProfileViewController.viewDidLoad]: Профиль ещё не загружен")
+        }
+        
+        profileImageServiceObserver = NotificationCenter.default.addObserver(
+            forName: ProfileImageService.didChangeNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.updateAvatar()
+        }
+        updateAvatar()
     }
     
     // MARK: - Setup Methods
@@ -113,9 +141,44 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
+    private func updateProfileDetails(_ profile: Profile) {
+        print("✅ [ProfileViewController.updateProfileDetails]: Success - обновление UI с профилем: \(profile.name)")
+        nameLabel.text = profile.name
+        loginNameLabel.text = profile.loginName
+        descriptionLabel.text = profile.bio
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = ProfileImageService.shared.avatarURL,
+            let url = URL(string: profileImageURL)
+        else {
+            print("⚠️ [ProfileViewController.updateAvatar]: Некорректный URL аватарки: \(ProfileImageService.shared.avatarURL ?? "nil")")
+            return
+        }
+        
+        avatarImage.kf.setImage(
+            with: url,
+            placeholder: UIImage(named: ProfileViewConstants.Images.placeholderUserpic),
+            options: [
+                .transition(.fade(0.2)),
+                .cacheOriginalImage,
+                .memoryCacheExpiration(.seconds(60)),
+                .diskCacheExpiration(.days(1))
+            ],
+            completionHandler: { result in
+                switch result {
+                case .success:
+                    print("✅ [ProfileViewController.updateAvatar]: Успешно обновлён аватар")
+                case .failure(let error):
+                    print("❌ [ProfileViewController.updateAvatar]: Ошибка загрузки аватара: \(error)")
+                }
+            }
+        )
+    }
+    
     // MARK: - Actions
     @objc private func didTapLogoutButton() {
         // TODO: Реализовать выход
     }
-    
 }

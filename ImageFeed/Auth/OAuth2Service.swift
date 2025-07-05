@@ -7,7 +7,16 @@
 
 import Foundation
 
+enum AuthServiceError: Error {
+    case invalidRequest
+}
+
 final class OAuth2Service {
+    
+    // MARK: - Private Properties
+    private let urlSession = URLSession.shared
+    private var task: URLSessionTask?
+    private var lastCode: String?
     
     // MARK: - Constants
     private enum OAuth2ServiceConstants {
@@ -18,13 +27,12 @@ final class OAuth2Service {
     
     // MARK: - Singleton
     static let shared = OAuth2Service()
-    
     private init() {}
     
     // MARK: - Private Methods
     private func makeOAuthTokenRequest(code: String) -> URLRequest? {
         guard var urlComponents = URLComponents(string: OAuth2ServiceConstants.unsplashSchemaAndHostNameString) else {
-            print("❌ Не удалось создать URLComponents из строки: \(OAuth2ServiceConstants.unsplashSchemaAndHostNameString)")
+            print("❌ [OAuth2Service.makeOAuthTokenRequest]: Failure - не удалось создать URLComponents из строки: \(OAuth2ServiceConstants.unsplashSchemaAndHostNameString)")
             return nil
         }
         urlComponents.path = OAuth2ServiceConstants.unsplashTokenPathString
@@ -36,7 +44,7 @@ final class OAuth2Service {
             URLQueryItem(name: "grant_type", value: OAuth2ServiceConstants.unsplashGrantTypeString)
         ]
         guard let url = urlComponents.url else {
-            print("❌ Не удалось получить URL из urlComponents: \(urlComponents)")
+            print("❌ [OAuth2Service.makeOAuthTokenRequest]: Failure - не удалось получить URL из URLComponents: \(urlComponents)")
             return nil
         }
         var request = URLRequest(url: url)
@@ -46,42 +54,42 @@ final class OAuth2Service {
     
     // MARK: - Public Methods
     func fetchOAuthToken(code: String, completion: @escaping (Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread)
+        
+        guard lastCode != code else {
+            print("❌ [OAuth2Service.fetchOAuthToken]: Failure - повторный код авторизации")
+            completion(.failure(AuthServiceError.invalidRequest))
+            return
+        }
+        task?.cancel()
+        lastCode = code
+        
         guard let request = makeOAuthTokenRequest(code: code) else {
-            completion(.failure(NetworkError.urlSessionError))
-            print("❌ Неизвестная ошибка URLSession")
+            print("❌ [OAuth2Service.fetchOAuthToken]: Failure - не удалось собрать URLRequest")
+            completion(.failure(AuthServiceError.invalidRequest))
             return
         }
         
-        let task = URLSession.shared.data(for: request) { result in
+        let currentTask = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            guard let self else { return }
+            
+            defer {
+                self.task = nil
+                self.lastCode = nil
+            }
+            
             switch result {
-            case .success(let data):
-                do {
-                    let decoder = JSONDecoder()
-                    let tokenResponse = try decoder.decode(OAuthTokenResponseBody.self, from: data)
-                    let storage = OAuth2TokenStorage()
-                    storage.token = tokenResponse.accessToken
-                    print("✅ Токен сохранён в UserDefaults: \(storage.token ?? "nil")")
-                    completion(.success(tokenResponse.accessToken))
-                } catch {
-                    completion(.failure(error))
-                    print("❌ Ошибка декодирования OAuthTokenResponseBody:", error)
-                }
+            case .success(let tokenResponse):
+                let storage = OAuth2TokenStorage()
+                storage.token = tokenResponse.accessToken
+                print("✅ [OAuth2Service.fetchOAuthToken]: Success - токен сохранён в UserDefaults: \(storage.token ?? "nil")")
+                completion(.success(tokenResponse.accessToken))
             case .failure(let error):
+                print("❌ [OAuth2Service.fetchOAuthToken]: Failure - \(error.localizedDescription)")
                 completion(.failure(error))
-                if let networkError = error as? NetworkError {
-                    switch networkError {
-                    case .httpStatusCode(let code):
-                        print("❌ Ошибка сервиса Unsplash, HTTP статус: \(code)")
-                    case .urlRequestError(let error):
-                        print("❌ Сетевая ошибка: \(error)")
-                    case .urlSessionError:
-                        print("❌ Неизвестная ошибка URLSession")
-                    }
-                } else {
-                    print("❌ Другая ошибка: \(error)")
-                }
             }
         }
-        task.resume()
+        self.task = currentTask
+        currentTask.resume()
     }
 }
