@@ -75,6 +75,7 @@ final class ProfileService {
     }
 }
 
+// MARK: - ProfileResult
 struct ProfileResult: Codable {
     let username: String
     let firstName: String?
@@ -89,6 +90,7 @@ struct ProfileResult: Codable {
     }
 }
 
+// MARK: - Profile
 struct Profile {
     let username: String
     let name: String

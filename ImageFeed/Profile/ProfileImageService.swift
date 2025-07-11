@@ -84,6 +84,7 @@ final class ProfileImageService {
     }
 }
 
+// MARK: - UserResult
 struct UserResult: Codable {
     let profileImage: ProfileImage
     
@@ -92,6 +93,7 @@ struct UserResult: Codable {
     }
 }
 
+// MARK: - ProfileImage
 struct ProfileImage: Codable {
     let small: String
     let medium: String
