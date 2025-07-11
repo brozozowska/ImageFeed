@@ -35,9 +35,15 @@ final class ImagesListService {
         isLoading = true
         let nextPage = (lastLoadedPage ?? 0) + 1
         
-        let urlString = "\(ImagesListServiceConstants.imagesListURLString)"
-        guard let url = URL(string: urlString) else {
+        var urlComponents = URLComponents(string: ImagesListServiceConstants.imagesListURLString)
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "page", value: String(nextPage)),
+            URLQueryItem(name: "per_page", value: "10"),
+            URLQueryItem(name: "client_id", value: Constants.accessKey)
+        ]
+        guard let url = urlComponents?.url else {
             print("❌ [ImagesListService.fetchPhotosNextPage]: Failure - не удалось создать URL для запроса информации о фотографиях")
+            isLoading = false
             return
         }
         var request = URLRequest(url: url)
