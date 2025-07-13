@@ -9,12 +9,13 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
-    // MARK: - IBOutlets
-    @IBOutlet private var tableView: UITableView!
+    // MARK: - UI Elements
+    private let tableView = UITableView()
     
     // MARK: - Private Properties
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
     private let photosName: [String] = Array(0..<20).map { "\($0)" }
+    
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ru_RU")
@@ -26,13 +27,35 @@ final class ImagesListViewController: UIViewController {
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
-        tableView.backgroundColor = .ypBlack
+        
+        view.backgroundColor = .ypBlack
+        tabBarController?.tabBar.isTranslucent = false
+        tabBarController?.tabBar.backgroundColor = .ypBlack
+ 
+        setupTableView()
+        setupLayout()
+    }
+    
+    // MARK: - Setup Methods
+    private func setupTableView() {
+        tableView.backgroundColor = .clear
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
-        
         tableView.register(ImagesListCell.self, forCellReuseIdentifier: ImagesListCell.reuseIdentifier)
-        
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.separatorStyle = .none
+        
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(tableView)
+    }
+    
+    private func setupLayout() {
+        NSLayoutConstraint.activate([
+            tableView.topAnchor.constraint(equalTo: view.topAnchor),
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
     }
     
     // MARK: - Navigation

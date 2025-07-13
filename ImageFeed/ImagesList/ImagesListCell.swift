@@ -39,7 +39,6 @@ final class ImagesListCell: UITableViewCell {
     let gradientView: UIView = {
             let view = UIView()
             view.clipsToBounds = true
-            view.layer.cornerRadius = 16
             return view
         }()
     
