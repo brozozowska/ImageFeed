@@ -76,13 +76,6 @@
                                             </constraints>
                                         </tableViewCellContentView>
                                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                        <connections>
-                                            <outlet property="cellImage" destination="oY1-eN-VTn" id="wOx-wQ-eUx"/>
-                                            <outlet property="dateLabel" destination="ud9-JT-PWZ" id="tb6-mV-3pa"/>
-                                            <outlet property="gradientImage" destination="oNI-sj-SxE" id="fW6-rk-e3H"/>
-                                            <outlet property="imageView" destination="oY1-eN-VTn" id="dxV-da-ieM"/>
-                                            <outlet property="likeButton" destination="Vxr-Ag-MUe" id="mWq-vg-Rve"/>
-                                        </connections>
                                     </tableViewCell>
                                 </prototypes>
                                 <connections>
