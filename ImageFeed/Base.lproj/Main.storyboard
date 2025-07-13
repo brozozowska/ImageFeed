@@ -56,64 +56,10 @@
                     <view key="view" contentMode="scaleToFill" id="0V6-RP-Hpe">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="jYV-Nd-msP">
-                                <rect key="frame" x="-20" y="39" width="433" height="799"/>
-                                <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="8WK-2L-fIw">
-                                        <rect key="frame" x="20" y="20" width="393" height="759"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                    </imageView>
-                                </subviews>
-                                <viewLayoutGuide key="contentLayoutGuide" id="6e9-YI-TLL"/>
-                                <viewLayoutGuide key="frameLayoutGuide" id="TVu-Zp-UDi"/>
-                                <connections>
-                                    <outlet property="delegate" destination="Vd0-TY-n8p" id="zC6-O3-fif"/>
-                                </connections>
-                            </scrollView>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TgT-fT-pSQ" userLabel="Back Button">
-                                <rect key="frame" x="8" y="55" width="48" height="48"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="48" id="cbf-CM-igz"/>
-                                    <constraint firstAttribute="width" constant="48" id="g51-sS-o7y"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="Backward"/>
-                                <connections>
-                                    <action selector="didTapBackButton" destination="Vd0-TY-n8p" eventType="touchUpInside" id="wtJ-OQ-xxU"/>
-                                </connections>
-                            </button>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vUb-cI-mCN" userLabel="Sharing Button">
-                                <rect key="frame" x="171.66666666666666" y="751" width="50" height="50"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="50" id="C3l-pO-ELe"/>
-                                    <constraint firstAttribute="width" constant="50" id="PaI-ol-6FA"/>
-                                </constraints>
-                                <state key="normal" title="Button"/>
-                                <buttonConfiguration key="configuration" style="plain" image="Share"/>
-                                <connections>
-                                    <action selector="didTapShareButton" destination="Vd0-TY-n8p" eventType="touchUpInside" id="P2B-zh-cvf"/>
-                                </connections>
-                            </button>
-                        </subviews>
                         <viewLayoutGuide key="safeArea" id="sCx-ST-X0y"/>
                         <color key="backgroundColor" name="YP Black"/>
-                        <constraints>
-                            <constraint firstItem="vUb-cI-mCN" firstAttribute="bottom" secondItem="sCx-ST-X0y" secondAttribute="bottom" constant="-17" id="9Qj-d8-0xf"/>
-                            <constraint firstItem="TgT-fT-pSQ" firstAttribute="top" secondItem="0V6-RP-Hpe" secondAttribute="top" constant="55" id="BjQ-66-zLz"/>
-                            <constraint firstItem="jYV-Nd-msP" firstAttribute="bottom" secondItem="0V6-RP-Hpe" secondAttribute="bottom" id="Kao-jX-Dg6"/>
-                            <constraint firstItem="jYV-Nd-msP" firstAttribute="leading" secondItem="0V6-RP-Hpe" secondAttribute="leading" id="QeD-qc-Ciq"/>
-                            <constraint firstItem="TgT-fT-pSQ" firstAttribute="leading" secondItem="0V6-RP-Hpe" secondAttribute="leading" constant="8" id="UBY-2R-Cxm"/>
-                            <constraint firstItem="jYV-Nd-msP" firstAttribute="trailing" secondItem="0V6-RP-Hpe" secondAttribute="trailing" id="fJQ-XY-G74"/>
-                            <constraint firstItem="vUb-cI-mCN" firstAttribute="centerX" secondItem="0V6-RP-Hpe" secondAttribute="centerX" id="nBS-Sh-n7I"/>
-                            <constraint firstItem="jYV-Nd-msP" firstAttribute="top" secondItem="0V6-RP-Hpe" secondAttribute="top" id="oRW-3D-Nae"/>
-                        </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="wTm-kL-s3I"/>
-                    <connections>
-                        <outlet property="imageView" destination="8WK-2L-fIw" id="27l-n0-lcA"/>
-                        <outlet property="scrollView" destination="jYV-Nd-msP" id="wf2-Vu-M49"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="vyX-pr-uDy" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -174,10 +120,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="0" width="1600" height="1059"/>
-        <image name="Backward" width="24" height="24"/>
         <image name="Main Tab Active" width="30" height="30"/>
-        <image name="Share" width="50" height="50"/>
         <namedColor name="YP Black">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="displayP3"/>
         </namedColor>

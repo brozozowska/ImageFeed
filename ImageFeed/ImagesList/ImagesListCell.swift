@@ -7,10 +7,7 @@
 
 import UIKit
 
-final class ImagesListCell: UITableViewCell {    
-
-    // MARK: - Public Properties
-    static let reuseIdentifier = "ImagesListCell"
+final class ImagesListCell: UITableViewCell {
     
     // MARK: - Constants
     private enum ImagesListCellConstants {
@@ -73,17 +70,24 @@ final class ImagesListCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Properties
+    static let reuseIdentifier = "ImagesListCell"
+    
     // MARK: - Setup Methods
     private func addSubviews() {
         [cellImage].forEach {
-                $0.translatesAutoresizingMaskIntoConstraints = false
-                contentView.addSubview($0)
-            }
-
-            [gradientView, dateLabel, likeButton].forEach {
-                $0.translatesAutoresizingMaskIntoConstraints = false
-                cellImage.addSubview($0)
-            }
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            contentView.addSubview($0)
+        }
+        
+        [
+            gradientView,
+            dateLabel,
+            likeButton
+        ].forEach {
+            $0.translatesAutoresizingMaskIntoConstraints = false
+            cellImage.addSubview($0)
+        }
     }
     
     private func setupLayout() {
