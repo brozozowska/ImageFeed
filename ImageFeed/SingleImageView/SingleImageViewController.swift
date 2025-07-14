@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
     
@@ -22,42 +23,36 @@ final class SingleImageViewController: UIViewController {
     
     // MARK: - UI Elements
     private let scrollView: UIScrollView = {
-            let scrollView = UIScrollView()
-            scrollView.minimumZoomScale = 0.1
-            scrollView.maximumZoomScale = 1.25
-            scrollView.translatesAutoresizingMaskIntoConstraints = false
-            return scrollView
-        }()
-
-        private let imageView: UIImageView = {
-            let imageView = UIImageView()
-            imageView.translatesAutoresizingMaskIntoConstraints = false
-            return imageView
-        }()
-
-        private let backButton: UIButton = {
-            let button = UIButton(type: .custom)
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.setImage(UIImage(named: "Backward"), for: .normal)
-            return button
-        }()
-
-        private let shareButton: UIButton = {
-            let button = UIButton(type: .custom)
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.setImage(UIImage(named: "Share"), for: .normal)
-            return button
-        }()
+        let scrollView = UIScrollView()
+        scrollView.minimumZoomScale = 0.1
+        scrollView.maximumZoomScale = 1.25
+        scrollView.translatesAutoresizingMaskIntoConstraints = false
+        return scrollView
+    }()
+    
+    private let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        return imageView
+    }()
+    
+    private let backButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "Backward"), for: .normal)
+        return button
+    }()
+    
+    private let shareButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(named: "Share"), for: .normal)
+        return button
+    }()
     
     // MARK: - Public Properties
-    var image: UIImage? {
-        didSet {
-            guard isViewLoaded, let image else { return }
-            imageView.frame = CGRect(origin: .zero, size: image.size)
-            scrollView.contentSize = image.size
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var fullImageURL: URL?
+
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -73,11 +68,24 @@ final class SingleImageViewController: UIViewController {
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
         
-        if let image {
-            imageView.image = image
-            imageView.frame = CGRect(origin: .zero, size: image.size)
-            scrollView.contentSize = image.size
-            rescaleAndCenterImageInScrollView(image: image)
+        guard let url = fullImageURL else {
+            assertionFailure("❌ [SingleImageViewController]: fullImageURL отсутствует")
+            return
+        }
+        
+        imageView.kf.indicatorType = .activity
+        
+        imageView.kf.setImage(with: url) { [weak self] result in
+            switch result {
+            case .success(let value):
+                guard let self else { return }
+                self.imageView.frame = CGRect(origin: .zero, size: value.image.size)
+                self.scrollView.contentSize = value.image.size
+                self.rescaleAndCenterImageInScrollView(imageSize: value.image.size)
+            case .failure(let error):
+                print("❌ [SingleImageViewController]: Не удалось загрузить фото:", error)
+            }
+            
         }
     }
     
@@ -126,7 +134,7 @@ final class SingleImageViewController: UIViewController {
     }
     
     @objc private func didTapShareButton() {
-        guard let image else { return }
+        guard let image = imageView.image else { return }
         let share = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
@@ -135,14 +143,13 @@ final class SingleImageViewController: UIViewController {
     }
     
     // MARK: - Private Methods
-    private func rescaleAndCenterImageInScrollView(image: UIImage) {
+    private func rescaleAndCenterImageInScrollView(imageSize: CGSize) {
         let minZoomScale = scrollView.minimumZoomScale
         let maxZoomScale = scrollView.maximumZoomScale
         
         view.layoutIfNeeded()
         
         let visibleRectSize = scrollView.bounds.size
-        let imageSize = image.size
 
         let hScale = visibleRectSize.width / imageSize.width
         let vScale = visibleRectSize.height / imageSize.height

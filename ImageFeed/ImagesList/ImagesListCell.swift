@@ -26,30 +26,38 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - UI Elements
     let cellImage: UIImageView = {
-            let imageView = UIImageView()
-            imageView.contentMode = .scaleAspectFill
-            imageView.clipsToBounds = true
-            imageView.layer.cornerRadius = 16
-            return imageView
-        }()
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 16
+        return imageView
+    }()
+    
+    let placeholderImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .center
+        imageView.clipsToBounds = true
+        imageView.layer.cornerRadius = 16
+        return imageView
+    }()
     
     let gradientView: UIView = {
-            let view = UIView()
-            view.clipsToBounds = true
-            return view
-        }()
+        let view = UIView()
+        view.clipsToBounds = true
+        return view
+    }()
     
     let dateLabel: UILabel = {
-            let label = UILabel()
-            label.textColor = .white
-            label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
-            return label
-        }()
+        let label = UILabel()
+        label.textColor = .white
+        label.font = UIFont.systemFont(ofSize: 13, weight: .regular)
+        return label
+    }()
     
     let likeButton: UIButton = {
-            let button = UIButton(type: .custom)
-            return button
-        }()
+        let button = UIButton(type: .custom)
+        return button
+    }()
     
     private let gradientLayer = CAGradientLayer()
     
@@ -75,7 +83,10 @@ final class ImagesListCell: UITableViewCell {
     
     // MARK: - Setup Methods
     private func addSubviews() {
-        [cellImage].forEach {
+        [
+            cellImage,
+            placeholderImageView
+        ].forEach {
             $0.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview($0)
         }
@@ -98,6 +109,12 @@ final class ImagesListCell: UITableViewCell {
             cellImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: ImagesListCellConstants.Layout.trailingPadding),
             cellImage.heightAnchor.constraint(equalToConstant: ImagesListCellConstants.Layout.cellSize),
             
+            placeholderImageView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: ImagesListCellConstants.Layout.topPadding),
+            placeholderImageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: ImagesListCellConstants.Layout.bottomPadding),
+            placeholderImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: ImagesListCellConstants.Layout.leadingPadding),
+            placeholderImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: ImagesListCellConstants.Layout.trailingPadding),
+            placeholderImageView.heightAnchor.constraint(equalToConstant: ImagesListCellConstants.Layout.cellSize),
+
             gradientView.leadingAnchor.constraint(equalTo: cellImage.leadingAnchor),
             gradientView.trailingAnchor.constraint(equalTo: cellImage.trailingAnchor),
             gradientView.bottomAnchor.constraint(equalTo: cellImage.bottomAnchor),
@@ -125,5 +142,12 @@ final class ImagesListCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         gradientLayer.frame = gradientView.bounds
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        cellImage.kf.cancelDownloadTask()
+        cellImage.image = nil
+        placeholderImageView.isHidden = false
     }
 }
