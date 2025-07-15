@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol ImagesListCellDelegate: AnyObject {
+    func imageListCellDidTapLike(_ cell: ImagesListCell)
+}
+
 final class ImagesListCell: UITableViewCell {
     
     // MARK: - Constants
@@ -24,12 +28,17 @@ final class ImagesListCell: UITableViewCell {
         }
     }
     
+    // MARK: - Public Properties
+    weak var delegate: ImagesListCellDelegate?
+    static let reuseIdentifier = "ImagesListCell"
+    
     // MARK: - UI Elements
     let cellImage: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = 16
+        imageView.isUserInteractionEnabled = true
         return imageView
     }()
     
@@ -72,14 +81,13 @@ final class ImagesListCell: UITableViewCell {
         addSubviews()
         setupLayout()
         setupGradient()
+        
+        likeButton.addTarget(self, action: #selector(likeButtonClicked), for: .touchUpInside)
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Public Properties
-    static let reuseIdentifier = "ImagesListCell"
     
     // MARK: - Setup Methods
     private func addSubviews() {
@@ -136,6 +144,11 @@ final class ImagesListCell: UITableViewCell {
             UIColor.black.withAlphaComponent(0.5).cgColor
         ]
         gradientView.layer.addSublayer(gradientLayer)
+    }
+    
+    // MARK: - Actions
+    @objc private func likeButtonClicked() {
+        delegate?.imageListCellDidTapLike(self)
     }
     
     // MARK: - Lifecycle

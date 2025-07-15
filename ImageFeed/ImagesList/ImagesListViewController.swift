@@ -139,6 +139,8 @@ extension ImagesListViewController: UITableViewDataSource {
         
         let photo = photos[indexPath.row]
         
+        imageListCell.delegate = self
+        
         imageListCell.placeholderImageView.image = UIImage(named: "stub")
         imageListCell.placeholderImageView.isHidden = false
         
@@ -165,5 +167,37 @@ extension ImagesListViewController: UITableViewDataSource {
         imageListCell.likeButton.setImage(UIImage(named: likeImageName), for: .normal)
         
         return imageListCell
+    }
+}
+
+// MARK: - ImagesListCellDelegate
+extension ImagesListViewController: ImagesListCellDelegate {
+    func imageListCellDidTapLike(_ cell: ImagesListCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else {
+            print("❌ [ImagesListViewController.imageListCellDidTapLike]: Не удалось найти indexPath для ячейки")
+            return
+        }
+        
+        let photo = photos[indexPath.row]
+        let photoID = photo.id
+        let isLike = !photo.isLiked
+        
+        UIBlockingProgressHUD.show()
+        
+        imagesListService.changeLike(photoID: photoID, isLike: isLike) { [weak self] result in
+            guard let self else { return }
+            
+            defer { UIBlockingProgressHUD.dismiss() }
+            
+            switch result {
+            case .success:
+                self.photos = self.imagesListService.photos
+                self.tableView.reloadRows(at: [indexPath], with: .automatic)
+                print("✅ [ImagesListViewController.imageListCellDidTapLike]: Лайк успешно изменён")
+            case .failure(let error):
+                print("❌ [ImagesListViewController.imageListCellDidTapLike]: Ошибка изменения лайка:", error)
+                // TODO: Показать ошибку с использованием UIAlertController
+            }
+        }
     }
 }

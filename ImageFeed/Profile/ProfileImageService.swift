@@ -14,6 +14,7 @@ enum ProfileImageURLError: Error {
 
 final class ProfileImageService {
     
+    // MARK: - Public Properties
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
    
     // MARK: - Private Properties

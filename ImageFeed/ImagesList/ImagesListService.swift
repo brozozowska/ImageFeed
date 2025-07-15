@@ -7,15 +7,20 @@
 
 import Foundation
 
+enum ImagesListError: Error {
+    case invalidURL
+    case invalidToken
+}
+
 final class ImagesListService {
     
-    static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
-
     // MARK: - Public Properties
     private(set) var photos: [Photo] = []
+    static let didChangeNotification = Notification.Name(rawValue: "ImagesListServiceDidChange")
     
     // MARK: - Private Properties
     private let urlSession = URLSession.shared
+    private let storage = OAuth2TokenStorage()
     private var task: URLSessionDataTask?
     private var lastLoadedPage: Int?
     private var isLoading: Bool = false
@@ -77,6 +82,64 @@ final class ImagesListService {
         }
         task?.resume()
     }
+    
+    func changeLike(
+        photoID: String,
+        isLike: Bool,
+        _ completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        assert(Thread.isMainThread)
+        
+        let urlString = ImagesListServiceConstants.imagesListURLString + "\(photoID)/like"
+        guard let url = URL(string: urlString) else {
+            print("❌ [ImagesListService.changeLike]: Failure - Ошибка URL")
+            completion(.failure(ImagesListError.invalidURL))
+            return
+        }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = isLike ? "POST" : "DELETE"
+        if let token = storage.token {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        } else {
+            print("❌ [ImagesListService.changeLike]: Failure - Нет токена")
+            completion(.failure(ImagesListError.invalidToken))
+            return
+        }
+        
+        let task = urlSession.data(for: request) { [weak self] result in
+            guard let self else { return }
+            
+            switch result {
+            case .success:
+                if let index = self.photos.firstIndex(where: { $0.id == photoID }) {
+                    let oldPhoto = self.photos[index]
+                    let newPhoto = Photo(
+                        id: oldPhoto.id,
+                        size: oldPhoto.size,
+                        createdAt: oldPhoto.createdAt,
+                        welcomeDescription: oldPhoto.welcomeDescription,
+                        thumbImageURL: oldPhoto.thumbImageURL,
+                        largeImageURL: oldPhoto.largeImageURL,
+                        isLiked: isLike
+                    )
+                    self.photos[index] = newPhoto
+                    
+                    NotificationCenter.default.post(
+                        name: ImagesListService.didChangeNotification,
+                        object: self
+                    )
+                }
+                print("✅ [ImagesListService.changeLike]: Success - данные о лайке успешно декодированы и обновлены в локальном массиве")
+                completion(.success(()))
+                
+            case .failure(let error):
+                print("❌ [ImagesListService.changeLike]: Failure - ошибка при декодировании данных о лайке:", error)
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
 }
 
 // MARK: - UrlsResult
@@ -136,6 +199,6 @@ extension Photo {
         self.welcomeDescription = result.description
         self.thumbImageURL = result.urls.thumb
         self.largeImageURL = result.urls.regular
-        self .isLiked = result.likedByUser
+        self.isLiked = result.likedByUser
     }
 }
