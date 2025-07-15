@@ -143,9 +143,7 @@ extension ImagesListViewController: UITableViewDataSource {
         
         imageListCell.placeholderImageView.image = UIImage(named: "stub")
         imageListCell.placeholderImageView.isHidden = false
-        
-        imageListCell.cellImage.kf.indicatorType = .activity
-                
+                        
         if let url = URL(string: photo.thumbImageURL) {
             imageListCell.cellImage.kf.setImage(with: url) { result in
                 switch result {

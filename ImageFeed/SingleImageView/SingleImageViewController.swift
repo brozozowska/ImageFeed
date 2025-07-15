@@ -26,26 +26,22 @@ final class SingleImageViewController: UIViewController {
         let scrollView = UIScrollView()
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
-        scrollView.translatesAutoresizingMaskIntoConstraints = false
         return scrollView
     }()
     
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
     private let backButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "Backward"), for: .normal)
         return button
     }()
     
     private let shareButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "Share"), for: .normal)
         return button
     }()
@@ -68,25 +64,7 @@ final class SingleImageViewController: UIViewController {
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
         
-        guard let url = fullImageURL else {
-            assertionFailure("❌ [SingleImageViewController]: fullImageURL отсутствует")
-            return
-        }
-        
-        imageView.kf.indicatorType = .activity
-        
-        imageView.kf.setImage(with: url) { [weak self] result in
-            switch result {
-            case .success(let value):
-                guard let self else { return }
-                self.imageView.frame = CGRect(origin: .zero, size: value.image.size)
-                self.scrollView.contentSize = value.image.size
-                self.rescaleAndCenterImageInScrollView(imageSize: value.image.size)
-            case .failure(let error):
-                print("❌ [SingleImageViewController]: Не удалось загрузить фото:", error)
-            }
-            
-        }
+        loadImage()
     }
     
     // MARK: - Setup Methods
@@ -174,6 +152,50 @@ final class SingleImageViewController: UIViewController {
             bottom: verticalInset,
             right: horizontalInset
         )
+    }
+    
+    private func loadImage() {
+        guard let url = fullImageURL else {
+            assertionFailure("❌ [SingleImageViewController.loadImage]: fullImageURL отсутствует")
+            return
+        }
+        
+        UIBlockingProgressHUD.show()
+        
+        imageView.kf.setImage(with: url) { [weak self] result in
+            guard let self else { return }
+            
+            defer { UIBlockingProgressHUD.dismiss() }
+            
+            switch result {
+            case .success(let value):
+                self.imageView.frame = CGRect(origin: .zero, size: value.image.size)
+                self.scrollView.contentSize = value.image.size
+                self.rescaleAndCenterImageInScrollView(imageSize: value.image.size)
+            case .failure(let error):
+                print("❌ [SingleImageViewController.loadImage]: Не удалось загрузить фото:", error)
+                self.showError()
+            }
+        }
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Попробовать ещё раз?",
+            preferredStyle: .alert
+        )
+        
+        let cancelAction = UIAlertAction(title: "Не надо", style: .cancel) { _ in }
+        
+        let retryAction = UIAlertAction(title: "Повторить", style: .default) { [weak self] _ in
+            self?.loadImage()
+        }
+        
+        alert.addAction(cancelAction)
+        alert.addAction(retryAction)
+        
+        present(alert, animated: true)
     }
 }
 
