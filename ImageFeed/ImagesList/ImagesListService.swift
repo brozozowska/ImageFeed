@@ -20,7 +20,7 @@ final class ImagesListService {
     
     // MARK: - Private Properties
     private let urlSession = URLSession.shared
-    private let storage = OAuth2TokenStorage()
+    private let storage = OAuth2TokenStorage.shared
     private var task: URLSessionDataTask?
     private var lastLoadedPage: Int?
     private var isLoading: Bool = false
@@ -139,6 +139,11 @@ final class ImagesListService {
             }
         }
         task.resume()
+    }
+    
+    func clear() {
+        photos = []
+        print("✅ [ImagesListService.clear]: Success - данные о фотографиях успешно удалены из локального массива")
     }
 }
 

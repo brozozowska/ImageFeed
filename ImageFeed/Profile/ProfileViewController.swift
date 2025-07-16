@@ -161,10 +161,7 @@ final class ProfileViewController: UIViewController {
             with: url,
             placeholder: UIImage(named: ProfileViewConstants.Images.placeholderUserpic),
             options: [
-                .transition(.fade(0.2)),
-                .cacheOriginalImage,
-                .memoryCacheExpiration(.seconds(60)),
-                .diskCacheExpiration(.days(1))
+                .transition(.fade(0.2))
             ],
             completionHandler: { result in
                 switch result {
@@ -179,6 +176,12 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func didTapLogoutButton() {
-        // TODO: Реализовать выход
+        ProfileLogoutService.shared.logout()
+        
+        guard let window = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+        let sceneDelegate = window.delegate as? SceneDelegate,
+        let window = sceneDelegate.window else { return }
+        
+        window.rootViewController = SplashViewController()
     }
 }

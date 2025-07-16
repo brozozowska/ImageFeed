@@ -73,6 +73,11 @@ final class ProfileService {
         self.task = currentTask
         currentTask.resume()
     }
+    
+    func clear() {
+        profile = nil
+        print("✅ [ProfileService.clear]: Success - данные профиля успешно удалены")
+    }
 }
 
 // MARK: - ProfileResult

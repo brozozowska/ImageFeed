@@ -83,6 +83,11 @@ final class ProfileImageService {
         self.task = currentTask
         currentTask.resume()
     }
+    
+    func clear() {
+        avatarURL = nil
+        print("✅ [ProfileImageService.clear]: Success - адрес аватарки успешно удалён")
+    }
 }
 
 // MARK: - UserResult

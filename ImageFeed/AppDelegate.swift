@@ -16,8 +16,8 @@ final class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         ProgressHUD.animationType = .activityIndicator
-        ProgressHUD.colorHUD = .ypWhiteAlpha50
-        ProgressHUD.colorAnimation = .ypBlack
+        ProgressHUD.colorHUD = .ypBlack
+        ProgressHUD.colorAnimation = .ypWhite
         return true
     }
 
