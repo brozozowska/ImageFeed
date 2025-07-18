@@ -103,6 +103,22 @@ final class ProfileViewController: UIViewController {
         updateAvatar()
     }
     
+    // MARK: - Private Methods
+    private func logout() {
+        ProfileLogoutService.shared.logout()
+
+        guard
+            let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let sceneDelegate = windowScene.delegate as? SceneDelegate,
+            let window = sceneDelegate.window
+        else {
+            return
+        }
+
+        window.rootViewController = SplashViewController()
+    }
+
+    
     // MARK: - Setup Methods
     private func addSubviews() {
         [
@@ -176,12 +192,21 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func didTapLogoutButton() {
-        ProfileLogoutService.shared.logout()
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
         
-        guard let window = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-        let sceneDelegate = window.delegate as? SceneDelegate,
-        let window = sceneDelegate.window else { return }
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            self?.logout()
+        }
         
-        window.rootViewController = SplashViewController()
+        let noAction = UIAlertAction(title: "Нет", style: .default, handler: nil)
+        
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        
+        present(alert, animated: true, completion: nil)
     }
 }
