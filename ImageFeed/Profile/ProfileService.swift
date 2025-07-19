@@ -35,7 +35,7 @@ final class ProfileService {
             return nil
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
@@ -73,8 +73,14 @@ final class ProfileService {
         self.task = currentTask
         currentTask.resume()
     }
+    
+    func clear() {
+        profile = nil
+        print("✅ [ProfileService.clear]: Success - данные профиля успешно удалены")
+    }
 }
 
+// MARK: - ProfileResult
 struct ProfileResult: Codable {
     let username: String
     let firstName: String?
@@ -89,6 +95,7 @@ struct ProfileResult: Codable {
     }
 }
 
+// MARK: - Profile
 struct Profile {
     let username: String
     let name: String

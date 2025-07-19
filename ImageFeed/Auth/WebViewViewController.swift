@@ -22,7 +22,6 @@ final class WebViewViewController: UIViewController {
     // MARK: - Constants
     private enum WebViewConstants {
         static let unsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
-        static let backButtonImageName = "Backward"
     }
     
     // MARK: - UI Elements
@@ -92,7 +91,7 @@ final class WebViewViewController: UIViewController {
     
     private func configureBackButton() {
         let backButton = UIBarButtonItem(
-            image: UIImage(named: WebViewConstants.backButtonImageName),
+            image: UIImage(resource: .backward),
             style: .plain,
             target: self,
             action: #selector(didTapBackButton)

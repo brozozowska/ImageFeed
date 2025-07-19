@@ -14,6 +14,7 @@ enum ProfileImageURLError: Error {
 
 final class ProfileImageService {
     
+    // MARK: - Public Properties
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
    
     // MARK: - Private Properties
@@ -38,7 +39,7 @@ final class ProfileImageService {
             return nil
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = HTTPMethod.get.rawValue
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         return request
     }
@@ -82,8 +83,14 @@ final class ProfileImageService {
         self.task = currentTask
         currentTask.resume()
     }
+    
+    func clear() {
+        avatarURL = nil
+        print("✅ [ProfileImageService.clear]: Success - адрес аватарки успешно удалён")
+    }
 }
 
+// MARK: - UserResult
 struct UserResult: Codable {
     let profileImage: ProfileImage
     
@@ -92,6 +99,7 @@ struct UserResult: Codable {
     }
 }
 
+// MARK: - ProfileImage
 struct ProfileImage: Codable {
     let small: String
     let medium: String

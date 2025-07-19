@@ -10,15 +10,14 @@ import UIKit
 final class SplashViewController: UIViewController {
     
     // MARK: - Private Properties
-    private let storage = OAuth2TokenStorage()
-    private let splashViewImageName = "Vector"
+    private let storage = OAuth2TokenStorage.shared
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
     
     // MARK: - UI Elements
     private lazy var splashViewImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: splashViewImageName)
+        imageView.image = UIImage(resource: .vector)
         return imageView
     }()
     
@@ -108,8 +107,8 @@ extension SplashViewController: AuthViewControllerDelegate {
                 let username = profile.username
                 profileImageService.fetchProfileImageURL(username: username, token: token) { _ in
                     print("✅ [SplashViewController.fetchProfile]: Вызов метода получения аватара")
+                    self.switchToTabBarController()
                 }
-                self.switchToTabBarController()
             case .failure:
                 // TODO: [Sprint 11] Покажите ошибку получения профиля
                 break

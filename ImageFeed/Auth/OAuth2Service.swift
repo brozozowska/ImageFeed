@@ -15,6 +15,7 @@ final class OAuth2Service {
     
     // MARK: - Private Properties
     private let urlSession = URLSession.shared
+    private let storage = OAuth2TokenStorage.shared
     private var task: URLSessionTask?
     private var lastCode: String?
     
@@ -48,7 +49,7 @@ final class OAuth2Service {
             return nil
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = HTTPMethod.post.rawValue
         return request
     }
     
@@ -80,7 +81,6 @@ final class OAuth2Service {
             
             switch result {
             case .success(let tokenResponse):
-                let storage = OAuth2TokenStorage()
                 storage.token = tokenResponse.accessToken
                 print("✅ [OAuth2Service.fetchOAuthToken]: Success - токен сохранён в UserDefaults: \(storage.token ?? "nil")")
                 completion(.success(tokenResponse.accessToken))

@@ -38,7 +38,7 @@ final class AuthViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var authScreenLogo: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: AuthViewConstants.Text.authScreenLogoName)
+        imageView.image = UIImage(resource: .authScreenLogo)
         return imageView
     }()
     

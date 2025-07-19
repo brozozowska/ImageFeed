@@ -25,12 +25,7 @@ final class ProfileViewController: UIViewController {
             static let verticalSpacing: CGFloat = 8
         }
         
-        enum Images {
-                static let placeholderUserpic = "placeholderUserpic"
-            }
-        
         enum Mock {
-            static let imageName = "mockUserpic"
             static let name = "Екатерина Новикова"
             static let loginName = "@ekaterina_nov"
             static let description = "Hello, world!"
@@ -40,7 +35,7 @@ final class ProfileViewController: UIViewController {
     // MARK: - UI Elements
     private lazy var avatarImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: ProfileViewConstants.Mock.imageName)
+        imageView.image = UIImage(resource: .placeholder)
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.layer.cornerRadius = ProfileViewConstants.Layout.avatarSize / 2
@@ -74,7 +69,7 @@ final class ProfileViewController: UIViewController {
     
     private lazy var logoutButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "Exit"), for: .normal)
+        button.setImage(UIImage(resource: .exit), for: .normal)
         button.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
         return button
     }()
@@ -102,6 +97,22 @@ final class ProfileViewController: UIViewController {
         }
         updateAvatar()
     }
+    
+    // MARK: - Private Methods
+    private func logout() {
+        ProfileLogoutService.shared.logout()
+
+        guard
+            let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+            let sceneDelegate = windowScene.delegate as? SceneDelegate,
+            let window = sceneDelegate.window
+        else {
+            return
+        }
+
+        window.rootViewController = SplashViewController()
+    }
+
     
     // MARK: - Setup Methods
     private func addSubviews() {
@@ -159,12 +170,9 @@ final class ProfileViewController: UIViewController {
         
         avatarImage.kf.setImage(
             with: url,
-            placeholder: UIImage(named: ProfileViewConstants.Images.placeholderUserpic),
+            placeholder: UIImage(resource: .placeholder),
             options: [
-                .transition(.fade(0.2)),
-                .cacheOriginalImage,
-                .memoryCacheExpiration(.seconds(60)),
-                .diskCacheExpiration(.days(1))
+                .transition(.fade(0.2))
             ],
             completionHandler: { result in
                 switch result {
@@ -179,6 +187,21 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Actions
     @objc private func didTapLogoutButton() {
-        // TODO: Реализовать выход
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
+            self?.logout()
+        }
+        
+        let noAction = UIAlertAction(title: "Нет", style: .default, handler: nil)
+        
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        
+        present(alert, animated: true, completion: nil)
     }
 }
