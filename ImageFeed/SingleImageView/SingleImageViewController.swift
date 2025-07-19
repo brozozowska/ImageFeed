@@ -34,13 +34,13 @@ final class SingleImageViewController: UIViewController {
     
     private let backButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "Backward"), for: .normal)
+        button.setImage(UIImage(resource: .backward), for: .normal)
         return button
     }()
     
     private let shareButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(UIImage(named: "Share"), for: .normal)
+        button.setImage(UIImage(resource: .share), for: .normal)
         return button
     }()
     

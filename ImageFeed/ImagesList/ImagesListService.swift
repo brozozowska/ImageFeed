@@ -52,7 +52,7 @@ final class ImagesListService {
             return
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "GET"
+        request.httpMethod = HTTPMethod.get.rawValue
         
         task = urlSession.objectTask(for: request) { [weak self] (result: Result<[PhotoResult], Error>) in
             guard let self else { return }
@@ -60,24 +60,20 @@ final class ImagesListService {
             switch result {
             case .success(let photoResults):
                 let newPhotos = photoResults.map { Photo(from: $0)}
+                self.photos.append(contentsOf: newPhotos)
+                self.lastLoadedPage = nextPage
+                self.isLoading = false
+                print("✅ [ImagesListService.fetchPhotosNextPage]: Success - информация о фотографиях успешно загружена")
                 
-                DispatchQueue.main.async {
-                    self.photos.append(contentsOf: newPhotos)
-                    self.lastLoadedPage = nextPage
-                    self.isLoading = false
-                    print("✅ [ImagesListService.fetchPhotosNextPage]: Success - информация о фотографиях успешно загружена")
-                    
-                    NotificationCenter.default.post(
-                        name: ImagesListService.didChangeNotification,
-                        object: self,
-                        userInfo: ["photos": self.photos]
-                    )
-                }
+                NotificationCenter.default.post(
+                    name: ImagesListService.didChangeNotification,
+                    object: self,
+                    userInfo: ["photos": self.photos]
+                )
+                
             case .failure(let error):
                 print("❌ [ImagesListService.fetchPhotosNextPage]: Failure - ошибка загрузки информации о фотографиях:", error)
-                DispatchQueue.main.async {
-                    self.isLoading = false
-                }
+                self.isLoading = false
             }
         }
         task?.resume()
@@ -98,7 +94,7 @@ final class ImagesListService {
         }
         
         var request = URLRequest(url: url)
-        request.httpMethod = isLike ? "POST" : "DELETE"
+        request.httpMethod = isLike ? HTTPMethod.post.rawValue : HTTPMethod.delete.rawValue
         if let token = storage.token {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         } else {
@@ -190,6 +186,10 @@ struct Photo {
 
 // MARK: - Mapping
 extension Photo {
+    private static let dateFormatter: ISO8601DateFormatter = {
+        ISO8601DateFormatter()
+    }()
+    
     init(from result: PhotoResult) {
         self.id = result.id
         self.size = CGSize(width: result.width, height: result.height)

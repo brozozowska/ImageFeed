@@ -89,7 +89,7 @@
             <objects>
                 <viewController id="Cu3-21-VT4" customClass="WebViewViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="D6f-iO-2D9">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                        <rect key="frame" x="0.0" y="0.0" width="393" height="783"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <viewLayoutGuide key="safeArea" id="4J7-VF-SkM"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
@@ -99,24 +99,6 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="7PC-U4-Qw8" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="1126" y="-1154"/>
-        </scene>
-        <!--Navigation Controller-->
-        <scene sceneID="D3N-ca-3wM">
-            <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="TfC-SM-C3A" sceneMemberID="viewController">
-                    <toolbarItems/>
-                    <navigationBar key="navigationBar" contentMode="scaleToFill" id="9OW-mo-IYp">
-                        <rect key="frame" x="0.0" y="118" width="393" height="44"/>
-                        <autoresizingMask key="autoresizingMask"/>
-                    </navigationBar>
-                    <nil name="viewControllers"/>
-                    <connections>
-                        <segue destination="q6k-us-g8U" kind="relationship" relationship="rootViewController" id="4gI-Tz-JPQ"/>
-                    </connections>
-                </navigationController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="xuH-Jn-t1d" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="-680" y="-1154"/>
         </scene>
     </scenes>
     <resources>

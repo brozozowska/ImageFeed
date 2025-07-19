@@ -141,7 +141,7 @@ extension ImagesListViewController: UITableViewDataSource {
         
         imageListCell.delegate = self
         
-        imageListCell.placeholderImageView.image = UIImage(named: "stub")
+        imageListCell.placeholderImageView.image = UIImage(resource: .stub)
         imageListCell.placeholderImageView.isHidden = false
                         
         if let url = URL(string: photo.thumbImageURL) {
@@ -161,8 +161,8 @@ extension ImagesListViewController: UITableViewDataSource {
         
         imageListCell.dateLabel.text = photo.createdAt.map { dateFormatter.string(from: $0) } ?? ""
         
-        let likeImageName = photo.isLiked ? "Favorites Active" : "Favorites No Active"
-        imageListCell.likeButton.setImage(UIImage(named: likeImageName), for: .normal)
+        let likeImageName = photo.isLiked ? UIImage(resource: .favoritesActive) : UIImage(resource: .favoritesNoActive)
+        imageListCell.likeButton.setImage(likeImageName, for: .normal)
         
         return imageListCell
     }

@@ -49,7 +49,7 @@ final class OAuth2Service {
             return nil
         }
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
+        request.httpMethod = HTTPMethod.post.rawValue
         return request
     }
     

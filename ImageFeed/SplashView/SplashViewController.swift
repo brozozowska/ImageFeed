@@ -11,14 +11,13 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Private Properties
     private let storage = OAuth2TokenStorage.shared
-    private let splashViewImageName = "Vector"
     private let profileService = ProfileService.shared
     private let profileImageService = ProfileImageService.shared
     
     // MARK: - UI Elements
     private lazy var splashViewImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: splashViewImageName)
+        imageView.image = UIImage(resource: .vector)
         return imageView
     }()
     
