@@ -195,8 +195,7 @@ extension Photo {
         self.size = CGSize(width: result.width, height: result.height)
         
         if let createdAt = result.createdAt {
-            let dateFormatter = ISO8601DateFormatter()
-            self.createdAt = dateFormatter.date(from: createdAt)
+            self.createdAt = Photo.dateFormatter.date(from: createdAt)
         } else {
             self.createdAt = nil
         }
