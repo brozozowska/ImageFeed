@@ -8,6 +8,7 @@
 import UIKit
 import WebKit
 
+// MARK: - Protocol
 public protocol WebViewViewControllerProtocol: AnyObject {
     var presenter: WebViewPresenterProtocol? { get set }
     func load(request: URLRequest)
@@ -24,11 +25,8 @@ protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
 }
 
+// MARK: - WebViewViewController
 final class WebViewViewController: UIViewController & WebViewViewControllerProtocol {
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
-    }
     
     // MARK: - UI Elements
     private lazy var webView: WKWebView = {
@@ -51,6 +49,10 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
     // MARK: - Private Properties
     private var estimatedProgressObservation: NSKeyValueObservation?
 
+    // MARK: - Initializers
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
     
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -74,6 +76,12 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         )
     }
     
+    // MARK: - Actions
+    @objc private func didTapBackButton() {
+        delegate?.webViewViewControllerDidCancel(self)
+        navigationController?.popViewController(animated: true)
+    }
+    
     // MARK: - UI Setup
     private func addSubviews() {
         [
@@ -85,6 +93,7 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         }
     }
     
+    // MARK: - Private Methods
     private func setupLayout() {
         NSLayoutConstraint.activate([
             webView.topAnchor.constraint(equalTo: view.topAnchor),
@@ -109,6 +118,7 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         navigationItem.leftBarButtonItem = backButton
     }
     
+    // MARK: - WebViewViewControllerProtocol
     func setProgressValue(_ newValue: Float) {
         progressView.progress = newValue
     }
@@ -117,16 +127,8 @@ final class WebViewViewController: UIViewController & WebViewViewControllerProto
         progressView.isHidden = isHidden
     }
     
-    // MARK: - Load Authorization Page
     func load(request: URLRequest) {
         webView.load(request)
-    }
-    
-    
-    // MARK: - Actions
-    @objc private func didTapBackButton() {
-        delegate?.webViewViewControllerDidCancel(self)
-        navigationController?.popViewController(animated: true)
     }
 }
 

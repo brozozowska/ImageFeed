@@ -8,7 +8,18 @@
 import UIKit
 import Kingfisher
 
-final class ProfileViewController: UIViewController {
+// MARK: - Protocol
+protocol ProfileViewViewControllerProtocol: AnyObject {
+    func updateProfileDetails(_ profile: Profile)
+    func updateAvatar(with url: URL)
+    func showLogoutAlert()
+}
+
+// MARK: - ProfileViewController
+final class ProfileViewController: UIViewController, ProfileViewViewControllerProtocol {
+    
+    // MARK: - Public Properties
+    var presenter: ProfilePresenterProtocol
     
     // MARK: - Private Properties
     private let profileService = ProfileService.shared
@@ -73,6 +84,17 @@ final class ProfileViewController: UIViewController {
         button.addTarget(self, action: #selector(didTapLogoutButton), for: .touchUpInside)
         return button
     }()
+    
+    // MARK: - Initializers
+    init(presenter: ProfilePresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+        presenter.view = self
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) не поддерживается. Используйте init(presenter:)")
+    }
 
     // MARK: - Lifecycle
     override func viewDidLoad() {
@@ -80,26 +102,16 @@ final class ProfileViewController: UIViewController {
         view.backgroundColor = .ypBlack
         addSubviews()
         setupLayout()
-        
-        if let profile = profileService.profile {
-            updateProfileDetails(profile)
-        } else {
-            print("⚠️ [ProfileViewController.viewDidLoad]: Профиль ещё не загружен")
-        }
-        
-        profileImageServiceObserver = NotificationCenter.default.addObserver(
-            forName: ProfileImageService.didChangeNotification,
-            object: nil,
-            queue: .main
-        ) { [weak self] _ in
-            guard let self else { return }
-            self.updateAvatar()
-        }
-        updateAvatar()
+        presenter.viewDidLoad()
+    }
+    
+    // MARK: - Actions
+    @objc private func didTapLogoutButton() {
+        presenter.didTapLogout()
     }
     
     // MARK: - Private Methods
-    private func logout() {
+    private func performLogout() {
         ProfileLogoutService.shared.logout()
 
         guard
@@ -112,7 +124,6 @@ final class ProfileViewController: UIViewController {
 
         window.rootViewController = SplashViewController()
     }
-
     
     // MARK: - Setup Methods
     private func addSubviews() {
@@ -152,22 +163,15 @@ final class ProfileViewController: UIViewController {
         ])
     }
     
-    private func updateProfileDetails(_ profile: Profile) {
+    // MARK: - ProfileViewViewControllerProtocol
+    func updateProfileDetails(_ profile: Profile) {
         print("✅ [ProfileViewController.updateProfileDetails]: Success - обновление UI с профилем: \(profile.name)")
         nameLabel.text = profile.name
         loginNameLabel.text = profile.loginName
         descriptionLabel.text = profile.bio
     }
     
-    private func updateAvatar() {
-        guard
-            let profileImageURL = ProfileImageService.shared.avatarURL,
-            let url = URL(string: profileImageURL)
-        else {
-            print("⚠️ [ProfileViewController.updateAvatar]: Некорректный URL аватарки: \(ProfileImageService.shared.avatarURL ?? "nil")")
-            return
-        }
-        
+    func updateAvatar(with url: URL) {
         avatarImage.kf.setImage(
             with: url,
             placeholder: UIImage(resource: .placeholder),
@@ -185,8 +189,7 @@ final class ProfileViewController: UIViewController {
         )
     }
     
-    // MARK: - Actions
-    @objc private func didTapLogoutButton() {
+    func showLogoutAlert() {
         let alert = UIAlertController(
             title: "Пока, пока!",
             message: "Уверены, что хотите выйти?",
@@ -194,7 +197,7 @@ final class ProfileViewController: UIViewController {
         )
         
         let yesAction = UIAlertAction(title: "Да", style: .default) { [weak self] _ in
-            self?.logout()
+            self?.performLogout()
         }
         
         let noAction = UIAlertAction(title: "Нет", style: .default, handler: nil)
