@@ -19,9 +19,10 @@ final class TabBarController: UITabBarController {
     private func setupTapBar() {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         
-        let imagesListViewController = storyboard.instantiateViewController(
-            withIdentifier: "ImagesListViewController"
-        )
+        let imagesListPresenter = ImagesListPresenter()
+        let imagesListViewController = storyboard.instantiateViewController(identifier: "ImagesListViewController") { coder in
+            ImagesListViewController(coder: coder, presenter: imagesListPresenter)
+        }
         
         let profilePresenter = ProfilePresenter()
         let profileViewController = ProfileViewController(presenter: profilePresenter)
