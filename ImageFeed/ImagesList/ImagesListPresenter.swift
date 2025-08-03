@@ -28,7 +28,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     
     // MARK: - Private Properties
     private var photos: [Photo] = []
-    private let service: ImagesListService
+    private let service: ImagesListServiceProtocol
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ru_RU")
@@ -38,7 +38,7 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     }()
     
     // MARK: - Initializers
-    init(service: ImagesListService = .shared) {
+    init(service: ImagesListServiceProtocol = ImagesListService.shared) {
         self.service = service
     }
     

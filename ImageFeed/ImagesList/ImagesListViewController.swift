@@ -18,7 +18,8 @@ protocol ImagesListViewControllerProtocol: AnyObject {
 // MARK: - ImagesListViewController
 final class ImagesListViewController: UIViewController, ImagesListViewControllerProtocol {
     // MARK: - UI Elements
-    private let tableView = UITableView()
+    // переменная используется только для тестов
+     var tableView = UITableView()
     
     // MARK: - Private Properties
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
