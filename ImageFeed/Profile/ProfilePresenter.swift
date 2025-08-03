@@ -21,12 +21,16 @@ final class ProfilePresenter: ProfilePresenterProtocol {
     weak var view: ProfileViewViewControllerProtocol?
     
     // MARK: - Private Properties
-    private let profileService: ProfileService
-    private let profileImageService: ProfileImageService
+    private let profileService: ProfileServiceProtocol
+    private let profileImageService: ProfileImageServiceProtocol
     private var profileImageObserver: NSObjectProtocol?
     
+    
     // MARK: - Initializers
-    init(profileService: ProfileService = .shared, profileImageService: ProfileImageService = .shared) {
+    init(
+        profileService: ProfileServiceProtocol = ProfileService.shared,
+        profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared
+    ) {
         self.profileService = profileService
         self.profileImageService = profileImageService
     }
