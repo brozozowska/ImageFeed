@@ -14,6 +14,7 @@ final class ImageFeedUITests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
 
+        app.launchArguments = ["UITEST"]
         app.launch()
     }
 
@@ -49,7 +50,7 @@ final class ImageFeedUITests: XCTestCase {
         
         window.swipeUp()
         
-        sleep(5)
+        sleep(2)
         
         let cellToLike = tablesQuery.children(matching: .cell).element(boundBy: 1)
         

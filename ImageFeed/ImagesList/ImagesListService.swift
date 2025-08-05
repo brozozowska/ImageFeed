@@ -42,6 +42,10 @@ final class ImagesListService: ImagesListServiceProtocol {
     
     // MARK: - Public Methods
     func fetchPhotosNextPage() {
+        // Ограничение загрузки в UI-тестах
+        if ProcessInfo.processInfo.arguments.contains("UITEST"),
+           (lastLoadedPage ?? 0) >= 2 { return }
+        
         guard !isLoading else { return }
         isLoading = true
         let nextPage = (lastLoadedPage ?? 0) + 1
