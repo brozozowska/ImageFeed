@@ -65,6 +65,7 @@ final class ImagesListCell: UITableViewCell {
     
     let likeButton: UIButton = {
         let button = UIButton(type: .custom)
+        button.accessibilityIdentifier = "LikeButton"
         return button
     }()
     

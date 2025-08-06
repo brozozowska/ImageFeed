@@ -12,7 +12,11 @@ enum ProfileError: Error {
     case invalidRequest
 }
 
-final class ProfileService {
+protocol ProfileServiceProtocol {
+    var profile: Profile? { get }
+}
+
+final class ProfileService: ProfileServiceProtocol {
     
     // MARK: - Private Properties
     private let urlSession = URLSession.shared
@@ -109,5 +113,12 @@ struct Profile {
             .joined(separator: " ")
         self.loginName = "@\(result.username)"
         self.bio = result.bio
+    }
+    
+    init(username: String, name: String, loginName: String, bio: String?) {
+        self.username = username
+        self.name = name
+        self.loginName = loginName
+        self.bio = bio
     }
 }

@@ -12,7 +12,13 @@ enum ImagesListError: Error {
     case invalidToken
 }
 
-final class ImagesListService {
+protocol ImagesListServiceProtocol: AnyObject {
+    var photos: [Photo] { get }
+    func fetchPhotosNextPage()
+    func changeLike(photoID: String, isLike: Bool, _ completion: @escaping (Result<Void, Error>) -> Void)
+}
+
+final class ImagesListService: ImagesListServiceProtocol {
     
     // MARK: - Public Properties
     private(set) var photos: [Photo] = []
@@ -36,6 +42,10 @@ final class ImagesListService {
     
     // MARK: - Public Methods
     func fetchPhotosNextPage() {
+        // Ограничение загрузки в UI-тестах
+        if ProcessInfo.processInfo.arguments.contains("UITEST"),
+           (lastLoadedPage ?? 0) >= 2 { return }
+        
         guard !isLoading else { return }
         isLoading = true
         let nextPage = (lastLoadedPage ?? 0) + 1

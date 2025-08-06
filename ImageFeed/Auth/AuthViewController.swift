@@ -55,6 +55,7 @@ final class AuthViewController: UIViewController {
             action: #selector(didTapLoginButton),
             for: .touchUpInside
         )
+        button.accessibilityIdentifier = "Authenticate" 
         return button
     }()
     
@@ -71,9 +72,19 @@ final class AuthViewController: UIViewController {
     
     // MARK: - Navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == AuthViewConstants.SegueIdentifier.showWebView,
-           let webViewVC = segue.destination as? WebViewViewController {
-            webViewVC.delegate = self
+        if segue.identifier == AuthViewConstants.SegueIdentifier.showWebView {
+            guard let webViewViewController = segue.destination as? WebViewViewController
+            else {
+                assertionFailure("❌ Не удалось подготовиться к переходу \(AuthViewConstants.SegueIdentifier.showWebView)")
+                return
+            }
+            let authHelper = AuthHelper()
+            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+            webViewViewController.presenter = webViewPresenter
+            webViewPresenter.view = webViewViewController
+            webViewViewController.delegate = self
+        } else {
+            super.prepare(for: segue, sender: sender)
         }
     }
     

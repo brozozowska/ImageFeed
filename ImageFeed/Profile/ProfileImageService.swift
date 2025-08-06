@@ -12,7 +12,11 @@ enum ProfileImageURLError: Error {
     case invalidRequest
 }
 
-final class ProfileImageService {
+protocol ProfileImageServiceProtocol {
+    var avatarURL: String? { get }
+}
+
+final class ProfileImageService: ProfileImageServiceProtocol {
     
     // MARK: - Public Properties
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
