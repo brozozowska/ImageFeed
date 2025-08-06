@@ -31,7 +31,6 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
     private let service: ImagesListServiceProtocol
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "ru_RU")
         formatter.dateStyle = .long
         formatter.timeStyle = .none
         return formatter
@@ -101,12 +100,12 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
         let photoID = photo.id
         let isLike = !photo.isLiked
         
-        UIBlockingProgressHUD.show()
+        view?.showLoadingIndicator()
         
         service.changeLike(photoID: photoID, isLike: isLike) { [weak self] result in
             guard let self else { return }
             
-            defer { UIBlockingProgressHUD.dismiss() }
+            defer { self.view?.hideLoadingIndicator() }
             
             switch result {
             case .success:
@@ -114,7 +113,6 @@ final class ImagesListPresenter: ImagesListPresenterProtocol {
                 self.view?.reloadRows(at: [IndexPath(row: index, section: 0)])
             case .failure(let error):
                 print("❌ [ImagesListPresenter.toggleLike]: Ошибка изменения лайка:", error)
-                // TODO: Показать ошибку с использованием UIAlertController
             }
         }
     }

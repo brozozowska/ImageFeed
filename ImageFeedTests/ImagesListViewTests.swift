@@ -92,6 +92,10 @@ final class ImagesListViewControllerSpy: ImagesListViewControllerProtocol {
         performSegueIndexPath = indexPath
         performSegueURL = url
     }
+    
+    func showLoadingIndicator() { }
+    
+    func hideLoadingIndicator() { }
 }
 
 final class ImagesListServiceMock: ImagesListServiceProtocol {

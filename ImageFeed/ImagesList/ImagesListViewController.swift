@@ -13,6 +13,8 @@ protocol ImagesListViewControllerProtocol: AnyObject {
     func insertRows(at indexPaths: [IndexPath])
     func reloadRows(at indexPaths: [IndexPath])
     func performSegueToSingleImage(at indexPath: IndexPath, url: URL)
+    func showLoadingIndicator()
+    func hideLoadingIndicator()
 }
 
 // MARK: - ImagesListViewController
@@ -96,6 +98,14 @@ final class ImagesListViewController: UIViewController, ImagesListViewController
     
     func performSegueToSingleImage(at indexPath: IndexPath, url: URL) {
         performSegue(withIdentifier: showSingleImageSegueIdentifier, sender: indexPath)
+    }
+    
+    func showLoadingIndicator() {
+        UIBlockingProgressHUD.show()
+    }
+
+    func hideLoadingIndicator() {
+        UIBlockingProgressHUD.dismiss()
     }
 }
 
